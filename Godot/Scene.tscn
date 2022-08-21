@@ -1,0 +1,23 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://Scene.gd" type="Script" id=2]
+
+[node name="Root" type="Node2D"]
+
+[node name="Scene" type="Node2D" parent="."]
+z_index = -1
+script = ExtResource( 2 )
+
+[node name="FPS" type="Label" parent="."]
+margin_left = 5.0
+margin_top = 5.0
+margin_right = 51.0
+margin_bottom = 19.0
+text = "FPS: 60"
+
+[node name="count" type="Label" parent="."]
+margin_left = 5.0
+margin_top = 25.0
+margin_right = 81.0
+margin_bottom = 39.0
+text = "Bunnies: 10"
