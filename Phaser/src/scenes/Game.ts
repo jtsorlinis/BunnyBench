@@ -29,7 +29,7 @@ export default class Demo extends Phaser.Scene {
 
     // Bunnies
     for (var i = 0; i < this.startBunnyCount; i++) {
-      const bunny: any = this.physics.add.sprite(10, 10, "bunny");
+      const bunny: any = this.add.sprite(10, 10, "bunny");
       bunny.speedX = Math.random() * 10;
       bunny.speedY = Math.random() * 10 - 5;
       bunny.setOrigin(0.5, 1);
@@ -45,7 +45,7 @@ export default class Demo extends Phaser.Scene {
     if (1 / delta > 0.06) {
       if (this.count < 200000) {
         for (var i = 0; i < 100; i++) {
-          const bunny: any = this.physics.add.sprite(10, 10, "bunny");
+          const bunny: any = this.add.sprite(10, 10, "bunny");
           bunny.speedX = Math.random() * 10;
           bunny.speedY = Math.random() * 10 - 5;
           bunny.setOrigin(0.5, 1);
