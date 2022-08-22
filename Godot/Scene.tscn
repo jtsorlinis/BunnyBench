@@ -8,6 +8,10 @@
 z_index = -1
 script = ExtResource( 2 )
 
+[node name="Panel" type="Panel" parent="."]
+margin_right = 121.0
+margin_bottom = 43.0
+
 [node name="FPS" type="Label" parent="."]
 margin_left = 5.0
 margin_top = 5.0
