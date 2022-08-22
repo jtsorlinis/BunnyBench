@@ -19,8 +19,9 @@ export default class Demo extends Phaser.Scene {
     this.count = this.startBunnyCount;
     this.fps = this.add
       .text(5, 5, `FPS: ${this.game.loop.actualFps}`)
-      .setDepth(1);
-    this.counter = this.add.text(5, 20, `Bunnies: ${this.count}`).setDepth(1);
+      .setDepth(2);
+    this.counter = this.add.text(5, 25, `Bunnies: ${this.count}`).setDepth(2);
+    this.add.rectangle(0, 0, 150, 45, 0x000000).setOrigin(0, 0).setDepth(1);
 
     // Bunnies
     for (var i = 0; i < this.startBunnyCount; i++) {
