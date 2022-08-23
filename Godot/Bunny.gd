@@ -11,6 +11,7 @@ var maxY = OS.get_window_size().y
 func _ready():
 	set_offset(Vector2(.5,1))
 	set_position(Vector2(10,10))
+	z_index = -1;
 
 func _process(_delta):
 	# Move

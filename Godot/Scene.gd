@@ -2,8 +2,8 @@ extends Node2D
 
 const Bunny = preload("res://Bunny.tscn")
 
-onready var fpsLabel = get_node("../FPS")
-onready var bunnyLabel = get_node("../count")
+onready var fpsLabel = get_node("FPS")
+onready var bunnyLabel = get_node("count")
 
 var startBunnyCount = 10
 var count = startBunnyCount
