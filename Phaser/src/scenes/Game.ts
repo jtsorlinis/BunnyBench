@@ -5,9 +5,8 @@ const minX = 0;
 const maxX = 800;
 const minY = 0;
 const maxY = 600;
+
 export default class Demo extends Phaser.Scene {
-  startBunnyCount = 10;
-  count = 0;
   counter!: Phaser.GameObjects.Text;
   fps!: Phaser.GameObjects.Text;
   emitter!: Phaser.GameObjects.Particles.ParticleEmitter;
@@ -21,11 +20,8 @@ export default class Demo extends Phaser.Scene {
 
   create() {
     // UI
-    this.count = this.startBunnyCount;
-    this.fps = this.add
-      .text(5, 5, `FPS: ${this.game.loop.actualFps}`)
-      .setDepth(2);
-    this.counter = this.add.text(5, 25, `Bunnies: ${this.count}`).setDepth(2);
+    this.fps = this.add.text(5, 5, `FPS: 0`).setDepth(2);
+    this.counter = this.add.text(5, 25, `Bunnies: 0`).setDepth(2);
     this.add.rectangle(0, 0, 150, 45, 0x000000).setOrigin(0, 0).setDepth(1);
 
     const particles = this.add.particles("bunny");
@@ -72,8 +68,7 @@ export default class Demo extends Phaser.Scene {
         particle.velocityX = Math.random() * 600;
         particle.velocityY = Math.random() * 600 - 300;
       }
+      this.counter.text = `Bunnies: ${this.emitter.getParticleCount()}`;
     }
-
-    this.counter.text = `Bunnies: ${this.emitter.getParticleCount()}`;
   }
 }
