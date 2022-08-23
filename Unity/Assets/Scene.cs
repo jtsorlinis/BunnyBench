@@ -36,7 +36,7 @@ public class Scene : MonoBehaviour
     fpsText.text = "FPS: " + ((int)(1 / Time.smoothDeltaTime));
 
     // Add bunnies while over 59fps
-    if (1 / Time.deltaTime > 59)
+    if (1 / Time.smoothDeltaTime > 59)
     {
       if (this.count < 200000)
       {
