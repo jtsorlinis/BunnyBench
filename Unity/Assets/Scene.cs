@@ -75,7 +75,7 @@ public class Scene : MonoBehaviour
     ps.SetParticles(m_Particles, numParticles);
 
     // Add bunnies while over 59fps
-    if (1 / Time.deltaTime > 59)
+    if (1 / Time.smoothDeltaTime > 59)
     {
       for (int i = 0; i < 100; i++)
       {
