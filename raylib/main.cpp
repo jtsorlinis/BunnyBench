@@ -3,7 +3,7 @@
 #include "raylib-cpp.hpp"
 
 float RandomFloat(float a, float b) {
-  float random = ((float)rand()) / (float)RAND_MAX;
+  float random = (static_cast<float>(rand())) / static_cast<float>(RAND_MAX);
   float diff = b - a;
   float r = random * diff;
   return a + r;
@@ -29,7 +29,7 @@ int main() {
   int minY = 0;
 
   raylib::Window window(screenWidth, screenHeight, "raylib Bunnymark");
-  raylib::Texture bunnyTex("../assets/bunny.png");
+  raylib::Texture bunnyTex("assets/bunny.png");
 
   int maxX = screenWidth - bunnyTex.width;
   int maxY = screenHeight - bunnyTex.height;
