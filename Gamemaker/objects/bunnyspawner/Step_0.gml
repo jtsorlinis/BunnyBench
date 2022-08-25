@@ -29,6 +29,7 @@ for (var i = 0; i < array_length(bunnies); i++) {
 	if(bunny.y > maxY) {
 		bunny.speedY *= -0.85
 		bunny.y = maxY
+		bunny.image_angle = random_range(-6,6)
 		if(random(1) > 0.5) {
 			bunny.speedY -= random_range(0,6)
 		}
