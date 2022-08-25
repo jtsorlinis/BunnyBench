@@ -42,34 +42,39 @@ public class Scene : MonoBehaviour
 
     for (int i = 0; i < numParticles; i++)
     {
-      m_Particles[i].velocity = new Vector3(m_Particles[i].velocity.x, m_Particles[i].velocity.y - gravity);
+      Vector2 pos = m_Particles[i].position;
+      Vector2 vel = m_Particles[i].velocity;
 
-      if (m_Particles[i].position.x > maxX)
+      vel.y -= gravity;
+
+      if (pos.x > maxX)
       {
-        m_Particles[i].velocity = new Vector3(-m_Particles[i].velocity.x, m_Particles[i].velocity.y);
-        m_Particles[i].position = new Vector2(maxX, m_Particles[i].position.y);
+        vel *= -1;
+        pos.x = maxX;
       }
-      else if (m_Particles[i].position.x < minX)
+      else if (pos.x < minX)
       {
-        m_Particles[i].velocity = new Vector3(-m_Particles[i].velocity.x, m_Particles[i].velocity.y);
-        m_Particles[i].position = new Vector2(minX, m_Particles[i].position.y);
+        vel.x *= -1;
+        pos.x = minX;
       }
 
-      if (m_Particles[i].position.y < this.maxY)
+      if (pos.y < this.maxY)
       {
-        m_Particles[i].velocity = new Vector3(m_Particles[i].velocity.x, m_Particles[i].velocity.y * -0.85f);
-        m_Particles[i].position = new Vector2(m_Particles[i].position.x, maxY);
+        vel.y *= -0.85f;
+        pos.y = maxY;
         m_Particles[i].rotation = Random.Range(-6f, 6f);
         if (Random.Range(0f, 1f) > 0.5f)
         {
-          m_Particles[i].velocity = new Vector3(m_Particles[i].velocity.x, m_Particles[i].velocity.y + Random.Range(0f, 6f));
+          vel.y += Random.Range(0f, 6f);
         }
       }
-      else if (m_Particles[i].position.y > this.minY)
+      else if (pos.y > this.minY)
       {
-        m_Particles[i].velocity = new Vector3(m_Particles[i].velocity.x, minY);
-        m_Particles[i].position = new Vector2(m_Particles[i].position.x, minY);
+        vel.y = 0;
+        pos.y = minY;
       }
+      m_Particles[i].velocity = vel;
+      m_Particles[i].position = pos;
 
     }
     ps.SetParticles(m_Particles, numParticles);
