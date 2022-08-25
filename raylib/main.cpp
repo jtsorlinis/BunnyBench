@@ -11,8 +11,8 @@ float RandomFloat(float a, float b) {
 
 class Bunny {
  public:
-  float posX = 10;
-  float posY = 10;
+  float posX = 0;
+  float posY = 0;
   float speedX;
   float speedY;
   Bunny() {
@@ -34,7 +34,7 @@ int main() {
   int maxX = screenWidth - bunnyTex.width;
   int maxY = screenHeight - bunnyTex.height;
 
-  SetTargetFPS(GetMonitorRefreshRate(0));
+  // SetTargetFPS(GetMonitorRefreshRate(0));
 
   std::vector<Bunny> bunnies;
 
