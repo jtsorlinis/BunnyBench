@@ -62,7 +62,6 @@ export default class Demo extends Phaser.Scene {
 
     // // Add bunnies while over 59fps
     if ((1 / delta) * 1000 > 59) {
-      // if (this.emitter.getParticleCount() < 50) {
       for (var i = 0; i < 100; i++) {
         const particle = this.emitter.emitParticle(1, 10, 10);
         particle.velocityX = Math.random() * 600;

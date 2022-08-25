@@ -11,15 +11,12 @@ var maxY = OS.get_window_size().y
 onready var fpsLabel = get_node("FPS")
 onready var bunnyLabel = get_node("count")
 
-var startBunnyCount = 10
-var count = startBunnyCount
-
 var bunnies = []
 
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	for n in startBunnyCount:
+	for n in 10:
 		var sprite = Bunny.new()
 		sprite.texture = bunnySprite
 		sprite.set_offset(Vector2(.5,1))
@@ -36,20 +33,18 @@ func _process(delta):
 	fpsLabel.text = 'FPS: %.2f' % Engine.get_frames_per_second()
 	# Add bunnies while over 60fps
 	if 1/delta > 60:
-		if count < 200000:
-			for i in 100:
-				var sprite = Bunny.new()
-				sprite.texture = bunnySprite
-				sprite.set_offset(Vector2(.5,1))
-				sprite.set_position(Vector2(10,10))
-				sprite.speedX = rand_range(0,10)
-				sprite.speedY = rand_range(-5, 5)
-				sprite.z_index = -1
-				add_child(sprite)
-				bunnies.append(sprite)
+		for i in 100:
+			var sprite = Bunny.new()
+			sprite.texture = bunnySprite
+			sprite.set_offset(Vector2(.5,1))
+			sprite.set_position(Vector2(10,10))
+			sprite.speedX = rand_range(0,10)
+			sprite.speedY = rand_range(-5, 5)
+			sprite.z_index = -1
+			add_child(sprite)
+			bunnies.append(sprite)
 
-				count += 1
-		bunnyLabel.text = 'Bunnies: %d' % count
+		bunnyLabel.text = 'Bunnies: %d' % bunnies.size()
 
 	
 	# Move bunnies
