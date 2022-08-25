@@ -11,13 +11,13 @@ float RandomFloat(float a, float b) {
 
 class Bunny {
  public:
-  float posX = 0;
-  float posY = 0;
-  float speedX;
-  float speedY;
+  raylib::Vector2 pos;
+  raylib::Vector2 vel;
+  float rotation = 0;
   Bunny() {
-    speedX = RandomFloat(0, 10);
-    speedY = RandomFloat(-5, 5);
+    pos = raylib::Vector2(0, 0);
+    vel.x = RandomFloat(0, 10);
+    vel.y = RandomFloat(-5, 5);
   }
 };
 
@@ -54,31 +54,33 @@ int main() {
     BeginDrawing();
     window.ClearBackground(RAYWHITE);
 
-    // Draw bunnies
+    // Update bunnies
     for (auto& bunny : bunnies) {
-      bunny.posX += bunny.speedX;
-      bunny.posY += bunny.speedY;
-      bunny.speedY += gravity;
-      bunnyTex.Draw(bunny.posX, bunny.posY);
+      bunny.pos += bunny.vel;
+      bunny.vel.y += gravity;
 
-      if (bunny.posX > maxX) {
-        bunny.speedX *= -1;
-        bunny.posX = maxX;
-      } else if (bunny.posX < minX) {
-        bunny.speedX *= -1;
-        bunny.posX = minX;
+      if (bunny.pos.x > maxX) {
+        bunny.vel.x *= -1;
+        bunny.pos.x = maxX;
+      } else if (bunny.pos.x < minX) {
+        bunny.vel.x *= -1;
+        bunny.pos.x = minX;
       }
 
-      if (bunny.posY > maxY) {
-        bunny.speedY *= -0.85;
-        bunny.posY = maxY;
+      if (bunny.pos.y > maxY) {
+        bunny.vel.y *= -0.85;
+        bunny.pos.y = maxY;
+        bunny.rotation = RandomFloat(-6, 6);
         if (RandomFloat(0, 1) > 0) {
-          bunny.speedY -= RandomFloat(0, 6);
+          bunny.vel.y -= RandomFloat(0, 6);
         }
-      } else if (bunny.posY < minY) {
-        bunny.speedY = 0;
-        bunny.posY = minY;
+      } else if (bunny.pos.y < minY) {
+        bunny.vel.y = 0;
+        bunny.pos.y = minY;
       }
+
+      // Actually draw the bunny
+      bunnyTex.Draw(bunny.pos, bunny.rotation);
     }
     DrawRectangle(0, 0, 180, 55, BLACK);
     raylib::DrawText(TextFormat("FPS: %i", GetFPS()), 5, 5, 20, WHITE);

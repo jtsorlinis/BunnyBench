@@ -448,6 +448,16 @@
             },
             {
               "type": {
+                "value": "SetAngle"
+              },
+              "parameters": [
+                "bunnySprite",
+                "=",
+                "RandomFloatInRange(-6,6)"
+              ]
+            },
+            {
+              "type": {
                 "value": "ModVarGlobal"
               },
               "parameters": [
