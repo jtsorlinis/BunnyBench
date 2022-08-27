@@ -10,7 +10,7 @@ let app = new PIXI.Application({
 document.body.appendChild(app.view);
 
 const uiContainer = new PIXI.Container();
-const bunnyContainer = new PIXI.ParticleContainer(200000, {});
+const bunnyContainer = new PIXI.ParticleContainer(200000);
 
 app.stage.addChild(bunnyContainer);
 app.stage.addChild(uiContainer);
