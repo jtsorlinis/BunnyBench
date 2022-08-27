@@ -47,7 +47,7 @@ fn main() {
 }
 
 #[derive(Deref)]
-struct BirdTexture(Handle<Image>);
+struct BunnyTexture(Handle<Image>);
 
 fn setup(
     mut commands: Commands,
@@ -60,6 +60,7 @@ fn setup(
     let mut rng = thread_rng();
 
     commands.spawn_bundle(Camera2dBundle::default());
+    commands.insert_resource(BunnyTexture(texture.clone()));
 
     commands
         .spawn_bundle(
@@ -152,13 +153,12 @@ fn move_bunnies(mut bunny_query: Query<(&mut Bunny, &mut Transform)>) {
 
 fn spawn_bunnies(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
+    texture: Res<BunnyTexture>,
     diagnostics: Res<Diagnostics>,
     mut counter: ResMut<Counter>,
 ) {
     let mut rng = thread_rng();
 
-    let texture = asset_server.load("bunny.png");
     if let Some(fps) = diagnostics.get(FrameTimeDiagnosticsPlugin::FPS) {
         if let Some(average) = fps.average() {
             if average > 59.0 {
