@@ -32,6 +32,12 @@ export default class Demo extends Phaser.Scene {
       y: 10,
       lifespan: Number.MAX_VALUE,
     });
+
+    for (var i = 0; i < 10; i++) {
+      const particle = this.emitter.emitParticle(1, 10, 10);
+      particle.velocityX = Math.random() * 600;
+      particle.velocityY = Math.random() * 600 - 300;
+    }
   }
 
   update(time: number, delta: number): void {
