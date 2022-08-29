@@ -79,7 +79,7 @@ app.ticker.add(() => {
 
   // Move bunnies
   for (let i = 0; i < bunnies.length; i++) {
-    let bunny = bunnies[i];
+    let bunny: Bunny = bunnies[i];
     bunny.x += bunny.speedX;
     bunny.y += bunny.speedY;
     bunny.speedY += gravity;
