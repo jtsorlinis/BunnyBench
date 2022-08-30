@@ -33,6 +33,7 @@ var bunnies []*Bunny
 var op *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{}
 
 func init() {
+	ebiten.SetFPSMode(ebiten.FPSModeVsyncOffMaximum)
 	var err error
 	bunnyTex, _, err = ebitenutil.NewImageFromFile("assets/bunny.png")
 	for i := 0; i < 10; i++ {
