@@ -49,7 +49,7 @@ public class Scene : MonoBehaviour
 
       if (pos.x > maxX)
       {
-        vel *= -1;
+        vel.x *= -1;
         pos.x = maxX;
       }
       else if (pos.x < minX)
