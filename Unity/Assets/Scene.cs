@@ -1,11 +1,12 @@
 using UnityEngine;
 using UnityEngine.ParticleSystemJobs;
 using UnityEngine.UI;
+using Unity.Burst;
 
 
 public class Scene : MonoBehaviour
 {
-  static float gravity = 0.5f;
+  static readonly float gravity = 0.5f;
   static Unity.Mathematics.Random rng;
 
   public Text fpsText;
@@ -27,6 +28,11 @@ public class Scene : MonoBehaviour
     rng = new Unity.Mathematics.Random((uint)UnityEngine.Random.Range(int.MinValue, int.MaxValue));
     maxY = -(2f * Camera.main.orthographicSize);
     maxX = 2f * Camera.main.orthographicSize * Camera.main.aspect;
+    job.minX = minX;
+    job.maxX = maxX;
+    job.minY = minY;
+    job.maxY = maxY;
+    job.rng = rng;
   }
 
   // Update is called once per frame
@@ -49,8 +55,15 @@ public class Scene : MonoBehaviour
     job.ScheduleBatch(ps, 2048);
   }
 
+  [BurstCompile]
   struct UpdateParticlesJob : IJobParticleSystemParallelForBatch
   {
+    public float minX;
+    public float maxX;
+    public float minY;
+    public float maxY;
+    public Unity.Mathematics.Random rng;
+
     public void Execute(ParticleSystemJobData particles, int start, int count)
     {
       var positionsX = particles.positions.x;
