@@ -5,7 +5,7 @@ use bevy::{
     sprite::MaterialMesh2dBundle,
     window::PresentMode,
 };
-use rand::{thread_rng, Rng};
+use nanorand::{Rng, WyRand};
 
 const WINDOW_WIDTH: f32 = 800.0;
 const WINDOW_HEIGHT: f32 = 600.0;
@@ -28,6 +28,11 @@ struct Counter {
     count: usize,
 }
 
+#[derive(Component)]
+struct Rand {
+    rng: WyRand,
+}
+
 fn main() {
     App::new()
         .insert_resource(WindowDescriptor {
@@ -39,6 +44,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugin(FrameTimeDiagnosticsPlugin::default())
         .insert_resource(Counter { count: 0 })
+        .insert_resource(Rand { rng: WyRand::new() })
         .add_startup_system(setup)
         .add_system(move_bunnies)
         .add_system(display_stats)
@@ -55,9 +61,9 @@ fn setup(
     mut counter: ResMut<Counter>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
+    mut rng: ResMut<Rand>,
 ) {
     let texture = asset_server.load("bunny.png");
-    let mut rng = thread_rng();
 
     commands.spawn_bundle(Camera2dBundle::default());
     commands.insert_resource(BunnyTexture(texture.clone()));
@@ -115,18 +121,19 @@ fn setup(
                 ..default()
             })
             .insert(Bunny {
-                velocity: Vec3::new(rng.gen_range(0.0..10.0), rng.gen_range(-5.0..5.0), 0.0),
+                velocity: Vec3::new(
+                    rng.rng.generate::<f32>() * 10.0,
+                    rng.rng.generate::<f32>() * 10.0 - 5.0,
+                    0.0,
+                ),
             });
     }
     counter.count = 10;
 }
 
-fn move_bunnies(mut bunny_query: Query<(&mut Bunny, &mut Transform)>) {
-    let mut rng = thread_rng();
-
+fn move_bunnies(mut bunny_query: Query<(&mut Bunny, &mut Transform)>, mut rng: ResMut<Rand>) {
     for (mut bunny, mut transform) in &mut bunny_query {
-        transform.translation.x += bunny.velocity.x;
-        transform.translation.y += bunny.velocity.y;
+        transform.translation += bunny.velocity;
         bunny.velocity.y -= GRAVITY;
 
         if transform.translation.x > MAXX {
@@ -140,9 +147,9 @@ fn move_bunnies(mut bunny_query: Query<(&mut Bunny, &mut Transform)>) {
         if transform.translation.y < MAXY {
             bunny.velocity.y *= -0.85;
             transform.translation.y = MAXY;
-            transform.rotation = Quat::from_rotation_z(rng.gen_range(-0.1..0.1));
-            if rng.gen_range(0.0..1.0) > 0.5 {
-                bunny.velocity.y += rng.gen_range(0.0..6.0);
+            transform.rotation = Quat::from_rotation_z(rng.rng.generate::<f32>() * 0.2 - 0.1);
+            if rng.rng.generate::<f32>() > 0.5 {
+                bunny.velocity.y += rng.rng.generate::<f32>() * 6.0;
             }
         } else if transform.translation.y > MINY {
             bunny.velocity.y = 0.0;
@@ -156,9 +163,8 @@ fn spawn_bunnies(
     texture: Res<BunnyTexture>,
     diagnostics: Res<Diagnostics>,
     mut counter: ResMut<Counter>,
+    mut rng: ResMut<Rand>,
 ) {
-    let mut rng = thread_rng();
-
     if let Some(fps) = diagnostics.get(FrameTimeDiagnosticsPlugin::FPS) {
         if let Some(average) = fps.average() {
             if average > 59.0 {
@@ -174,8 +180,8 @@ fn spawn_bunnies(
                         })
                         .insert(Bunny {
                             velocity: Vec3::new(
-                                rng.gen_range(0.0..10.0),
-                                rng.gen_range(-5.0..5.0),
+                                rng.rng.generate::<f32>() * 10.0,
+                                rng.rng.generate::<f32>() * 10.0 - 5.0,
                                 0.0,
                             ),
                         });
