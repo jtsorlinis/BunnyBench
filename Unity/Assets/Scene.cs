@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.ParticleSystemJobs;
 using UnityEngine.UI;
 using Unity.Burst;
-
+using Unity.Collections;
 
 public class Scene : MonoBehaviour
 {
@@ -58,10 +58,19 @@ public class Scene : MonoBehaviour
   [BurstCompile]
   struct UpdateParticlesJob : IJobParticleSystemParallelForBatch
   {
+    [ReadOnly]
     public float minX;
+
+    [ReadOnly]
     public float maxX;
+
+    [ReadOnly]
     public float minY;
+
+    [ReadOnly]
     public float maxY;
+
+    [ReadOnly]
     public Unity.Mathematics.Random rng;
 
     public void Execute(ParticleSystemJobData particles, int start, int count)
