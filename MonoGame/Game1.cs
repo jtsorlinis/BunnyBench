@@ -1,9 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using System.IO;
 using System;
 using System.Collections.Generic;
+using SpriteFontPlus;
 
 namespace MonoGame;
 
@@ -11,7 +11,10 @@ public class Game1 : Game
 {
   private GraphicsDeviceManager _graphics;
   private Texture2D bunnySprite;
+  private SpriteFont font;
   private SpriteBatch _spriteBatch;
+  double fps;
+  Texture2D blackRectangle;
   Random r = new Random();
 
   private float minX = 0;
@@ -60,12 +63,26 @@ public class Game1 : Game
     FileStream fileStream = new FileStream("Content/bunny.png", FileMode.Open);
     bunnySprite = Texture2D.FromStream(GraphicsDevice, fileStream);
     fileStream.Dispose();
+
+    blackRectangle = new Texture2D(GraphicsDevice, 1, 1);
+    blackRectangle.SetData(new[] { Color.Black });
+
+    var fontBakeResult = TtfFontBaker.Bake(File.ReadAllBytes("Content/PTRoot.ttf"),
+      20,
+      1024,
+      1024,
+      new[] {
+        CharacterRange.BasicLatin,
+        CharacterRange.Latin1Supplement,
+        CharacterRange.LatinExtendedA,
+        CharacterRange.Cyrillic
+      });
+    font = fontBakeResult.CreateSpriteFont(GraphicsDevice);
   }
 
   protected override void Update(GameTime gameTime)
   {
-    var fps = 1 / gameTime.ElapsedGameTime.TotalSeconds;
-    Console.WriteLine("FPS: " + Math.Round(fps) + "\t Bunnies: " + bunnies.Count);
+    fps = 1 / gameTime.ElapsedGameTime.TotalSeconds;
 
     // Add bunnies while over 59 fps
     if (fps > 59)
@@ -101,7 +118,7 @@ public class Game1 : Game
       {
         bunny.vel.Y *= -0.85f;
         bunny.pos.Y = maxY;
-        bunny.rot = r.NextSingle() * 12 - 6;
+        bunny.rot = r.NextSingle() * 0.2f - 0.1f;
         if (r.NextSingle() > 0.5)
         {
           bunny.vel.Y -= r.NextSingle() * 6;
@@ -125,9 +142,12 @@ public class Game1 : Game
     _spriteBatch.Begin();
     for (int i = 0; i < bunnies.Count; i++)
     {
-      _spriteBatch.Draw(bunnySprite, bunnies[i].pos, Color.White);
-
+      _spriteBatch.Draw(bunnySprite, bunnies[i].pos, null, Color.White, bunnies[i].rot, Vector2.Zero, Vector2.One, SpriteEffects.None, 0);
+      // _spriteBatch.Draw(bunnySprite, bunnies[i].pos, Color.White);
     }
+    _spriteBatch.Draw(blackRectangle, new Rectangle(0, 0, 135, 50), Color.White);
+    _spriteBatch.DrawString(font, "FPS: " + Math.Round(fps), new Vector2(5, 2), Color.White);
+    _spriteBatch.DrawString(font, "Bunnies: " + bunnies.Count, new Vector2(5, 22), Color.White);
     _spriteBatch.End();
 
 
