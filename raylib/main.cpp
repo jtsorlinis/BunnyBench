@@ -55,7 +55,7 @@ int main() {
     window.ClearBackground(RAYWHITE);
 
     // Update bunnies
-    for (auto& bunny : bunnies) {
+    for (auto&& bunny : bunnies) {
       bunny.pos += bunny.vel;
       bunny.vel.y += gravity;
 

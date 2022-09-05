@@ -20,7 +20,7 @@ public class Game1 : Game
   private float maxY = 565;
   private float gravity = 0.5f;
 
-  struct Bunny
+  class Bunny
   {
     public Vector2 vel;
     public Vector2 pos;
@@ -113,7 +113,6 @@ public class Game1 : Game
         bunny.pos.Y = minY;
       }
 
-      bunnies[i] = bunny;
     }
 
     base.Update(gameTime);
