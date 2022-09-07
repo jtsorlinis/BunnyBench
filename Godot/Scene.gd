@@ -1,6 +1,5 @@
 extends Node2D
 
-const Bunny = preload("res://Bunny.gd")
 const bunnySprite = preload("res://bunny2.png")
 
 var gravity = 0.5
@@ -12,20 +11,21 @@ onready var fpsLabel = get_node("FPS")
 onready var bunnyLabel = get_node("count")
 
 var bunnies = []
+var bunnySpeeds = []
 
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	for n in 10:
-		var sprite = Bunny.new()
+		var sprite = Sprite.new()
 		sprite.texture = bunnySprite
 		sprite.set_offset(Vector2(.5,1))
 		sprite.set_position(Vector2(10,10))
-		sprite.speedX = rand_range(0,10)
-		sprite.speedY = rand_range(-5, 5)
+		var spriteSpeed = Vector2(rand_range(0,10), rand_range(-5,5))
 		sprite.z_index = -1
 		add_child(sprite)
 		bunnies.append(sprite)
+		bunnySpeeds.append(spriteSpeed)
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -34,41 +34,45 @@ func _process(delta):
 	# Add bunnies while over 60fps
 	if 1/delta > 60:
 		for i in 100:
-			var sprite = Bunny.new()
+			var sprite = Sprite.new()
 			sprite.texture = bunnySprite
 			sprite.set_offset(Vector2(.5,1))
 			sprite.set_position(Vector2(10,10))
-			sprite.speedX = rand_range(0,10)
-			sprite.speedY = rand_range(-5, 5)
+			var spriteSpeed = Vector2(rand_range(0,10), rand_range(-5,5))
 			sprite.z_index = -1
 			add_child(sprite)
 			bunnies.append(sprite)
+			bunnySpeeds.append(spriteSpeed)
 
 		bunnyLabel.text = 'Bunnies: %d' % bunnies.size()
 
 	
 	# Move bunnies
-	for bunny in bunnies:
-		bunny.position.x += bunny.speedX
-		bunny.position.y += bunny.speedY
-		bunny.speedY += gravity
+	for i in len(bunnies):
+		var bunnypos = bunnies[i].position
+		var bunnyvel = bunnySpeeds[i]
+		bunnypos += bunnyvel
+		bunnyvel.y += gravity
 		
-		if bunny.position.x > maxX:
-			bunny.speedX *= -1
-			bunny.position.x = maxX
-		elif bunny.position.x < minX:
-			bunny.speedX *= -1
-			bunny.position.x = minX
+		if bunnypos.x > maxX:
+			bunnyvel.x *= -1
+			bunnypos.x = maxX
+		elif bunnypos.x < minX:
+			bunnyvel.x *= -1
+			bunnypos.x = minX
 			
-		if bunny.position.y > maxY:
-			bunny.speedY *= -0.85;
-			bunny.position.y = maxY;
-			bunny.rotation = rand_range(-0.1, 0.1)	
+		if bunnypos.y > maxY:
+			bunnyvel.y *= -0.85;
+			bunnypos.y = maxY;
+			bunnies[i].rotation = rand_range(-0.1, 0.1)	
 			if(rand_range(0,1) > 0.5):
-				bunny.speedY -= rand_range(0, 6)
-		elif bunny.position.y < minY:
-			bunny.speedY = 0
-			bunny.position.y = minY
+				bunnyvel.y -= rand_range(0, 6)
+		elif bunnypos.y < minY:
+			bunnyvel.y = 0
+			bunnypos.y = minY
+		
+		bunnies[i].position = bunnypos
+		bunnySpeeds[i] = bunnyvel
 			
 			
 			
