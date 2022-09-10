@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 
 public class Scene : MonoBehaviour
@@ -24,7 +25,7 @@ public class Scene : MonoBehaviour
   Mesh mesh;
   Bounds bounds = new Bounds(Vector3.zero, new Vector3(100.0f, 100.0f, 100.0f));
 
-  List<Vector4> positions = new List<Vector4>();
+  Vector4[] positions = new Vector4[0];
   List<Vector4> velocities = new List<Vector4>();
 
   void Start()
@@ -32,12 +33,14 @@ public class Scene : MonoBehaviour
     argsBuffer = new ComputeBuffer(1, args.Length * sizeof(uint), ComputeBufferType.IndirectArguments);
     mesh = MakeQuad(.7f, .7f);
 
+    Array.Resize(ref positions, 10);
+
     for (int i = 0; i < 10; i++)
     {
-      positions.Add(new Vector4(minX, minY, 0, 0));
-      velocities.Add(new Vector4(Random.Range(0, 0.13f), Random.Range(-.06f, 0.06f)));
+      positions[i] = new Vector4(minX, minY, 0, 0);
+      velocities.Add(new Vector4(UnityEngine.Random.Range(0, 0.13f), UnityEngine.Random.Range(-.06f, 0.06f)));
     }
-    positionBuffer = new ComputeBuffer(positions.Count, 16);
+    positionBuffer = new ComputeBuffer(positions.Length, 16);
 
   }
 
@@ -46,13 +49,13 @@ public class Scene : MonoBehaviour
 
     fpsText.text = "FPS: " + ((int)(1 / Time.smoothDeltaTime));
 
-    if (positionBuffer.count < positions.Count)
+    if (positionBuffer.count < positions.Length)
     {
       positionBuffer.Release();
-      positionBuffer = new ComputeBuffer(positions.Count, 16);
+      positionBuffer = new ComputeBuffer(positions.Length, 16);
     }
 
-    for (int i = 0; i < positions.Count; i++)
+    for (int i = 0; i < positions.Length; i++)
     {
       Vector4 pos = positions[i];
       Vector4 vel = velocities[i];
@@ -76,10 +79,10 @@ public class Scene : MonoBehaviour
       {
         vel.y *= -0.85f;
         pos.y = maxY;
-        pos.w = Random.Range(-0.1f, 0.1f); // Passing rotation through w value of position
-        if (Random.Range(0f, 1f) > 0.5f)
+        pos.w = UnityEngine.Random.Range(-0.1f, 0.1f); // Passing rotation through w value of position
+        if (UnityEngine.Random.Range(0f, 1f) > 0.5f)
         {
-          vel.y += Random.Range(0f, .1f);
+          vel.y += UnityEngine.Random.Range(0f, .1f);
         }
       }
       else if (pos.y > this.minY)
@@ -93,14 +96,14 @@ public class Scene : MonoBehaviour
     }
 
     // Draw
-    positionBuffer.SetData(positions.ToArray());
+    positionBuffer.SetData(positions);
     mat.SetBuffer("positionBuffer", positionBuffer);
 
     // Indirect args
     if (mesh != null)
     {
       args[0] = (uint)mesh.GetIndexCount(0);
-      args[1] = (uint)positions.Count;
+      args[1] = (uint)positions.Length;
       args[2] = (uint)mesh.GetIndexStart(0);
       args[3] = (uint)mesh.GetBaseVertex(0);
     }
@@ -115,12 +118,13 @@ public class Scene : MonoBehaviour
     // Add bunnies while over 59fps
     if (1 / Time.smoothDeltaTime > 59)
     {
+      Array.Resize(ref positions, positions.Length + 100);
       for (int i = 0; i < 100; i++)
       {
-        positions.Add(new Vector4(minX, minY, 0, 0));
-        velocities.Add(new Vector4(Random.Range(0, 0.13f), Random.Range(-.06f, 0.06f)));
+        positions[positions.Length - 100 + i] = new Vector4(minX, minY, 0, 0);
+        velocities.Add(new Vector4(UnityEngine.Random.Range(0, 0.13f), UnityEngine.Random.Range(-.06f, 0.06f)));
       }
-      bunnyText.text = "Bunnies: " + positions.Count;
+      bunnyText.text = "Bunnies: " + positions.Length;
     }
   }
 
