@@ -37,6 +37,8 @@ public class Scene : MonoBehaviour
       positions.Add(new Vector4(minX, minY, 0, 0));
       velocities.Add(new Vector4(Random.Range(0, 0.13f), Random.Range(-.06f, 0.06f)));
     }
+    positionBuffer = new ComputeBuffer(positions.Count, 16);
+
   }
 
   void Update()
@@ -44,13 +46,11 @@ public class Scene : MonoBehaviour
 
     fpsText.text = "FPS: " + ((int)(1 / Time.smoothDeltaTime));
 
-    if (positionBuffer != null)
+    if (positionBuffer.count < positions.Count)
     {
       positionBuffer.Release();
+      positionBuffer = new ComputeBuffer(positions.Count, 16);
     }
-
-    positionBuffer = new ComputeBuffer(positions.Count, 16);
-    Vector4[] posvec = new Vector4[positions.Count];
 
     for (int i = 0; i < positions.Count; i++)
     {
@@ -93,8 +93,7 @@ public class Scene : MonoBehaviour
     }
 
     // Draw
-    posvec = positions.ToArray();
-    positionBuffer.SetData(posvec);
+    positionBuffer.SetData(positions.ToArray());
     mat.SetBuffer("positionBuffer", positionBuffer);
 
     // Indirect args
