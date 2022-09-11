@@ -18,6 +18,8 @@ public class Scene : MonoBehaviour
   float minY = 4.3f;
   float maxY = -5f;
 
+  int max = 2000000;
+
   private ComputeBuffer positionBuffer;
 
   Mesh mesh;
@@ -38,7 +40,9 @@ public class Scene : MonoBehaviour
       positions[i] = new Vector4(minX, minY, 0, 0);
       velocities[i] = new Vector2(UnityEngine.Random.Range(0, 0.13f), UnityEngine.Random.Range(-.06f, 0.06f));
     }
-    positionBuffer = new ComputeBuffer(positions.Length, 16);
+    positionBuffer = new ComputeBuffer(max, 16);
+    positionBuffer.SetData(positions);
+    mat.SetBuffer("positionBuffer", positionBuffer);
 
   }
 
@@ -47,12 +51,6 @@ public class Scene : MonoBehaviour
 
     fpsText.text = "FPS: " + ((int)(1 / Time.smoothDeltaTime));
 
-    if (positionBuffer != null)
-    {
-      positionBuffer.Release();
-    }
-
-    positionBuffer = new ComputeBuffer(positions.Length, 16);
 
     for (int i = 0; i < positions.Length; i++)
     {
@@ -94,10 +92,7 @@ public class Scene : MonoBehaviour
       velocities[i] = vel;
     }
 
-    // Draw
     positionBuffer.SetData(positions);
-    mat.SetBuffer("positionBuffer", positionBuffer);
-
     Graphics.DrawMeshInstancedProcedural(mesh, 0, mat, bounds, positions.Length, null, UnityEngine.Rendering.ShadowCastingMode.Off, false, 0, null, UnityEngine.Rendering.LightProbeUsage.Off, null);
 
     // Add bunnies while over 59fps
