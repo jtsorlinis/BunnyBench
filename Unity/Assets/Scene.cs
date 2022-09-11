@@ -47,11 +47,12 @@ public class Scene : MonoBehaviour
 
     fpsText.text = "FPS: " + ((int)(1 / Time.smoothDeltaTime));
 
-    if (positionBuffer.count < positions.Length)
+    if (positionBuffer != null)
     {
       positionBuffer.Release();
-      positionBuffer = new ComputeBuffer(positions.Length, 16);
     }
+
+    positionBuffer = new ComputeBuffer(positions.Length, 16);
 
     for (int i = 0; i < positions.Length; i++)
     {
