@@ -19,8 +19,6 @@ public class Scene : MonoBehaviour
   float maxY = -5f;
 
   private ComputeBuffer positionBuffer;
-  private ComputeBuffer argsBuffer;
-  private uint[] args = new uint[5] { 0, 0, 0, 0, 0 };
 
   Mesh mesh;
   Bounds bounds = new Bounds(Vector3.zero, new Vector3(100.0f, 100.0f, 100.0f));
@@ -30,7 +28,6 @@ public class Scene : MonoBehaviour
 
   void Start()
   {
-    argsBuffer = new ComputeBuffer(1, args.Length * sizeof(uint), ComputeBufferType.IndirectArguments);
     mesh = MakeQuad(.7f, .7f);
 
     Array.Resize(ref positions, 10);
@@ -100,21 +97,7 @@ public class Scene : MonoBehaviour
     positionBuffer.SetData(positions);
     mat.SetBuffer("positionBuffer", positionBuffer);
 
-    // Indirect args
-    if (mesh != null)
-    {
-      args[0] = (uint)mesh.GetIndexCount(0);
-      args[1] = (uint)positions.Length;
-      args[2] = (uint)mesh.GetIndexStart(0);
-      args[3] = (uint)mesh.GetBaseVertex(0);
-    }
-    else
-    {
-      args[0] = args[1] = args[2] = args[3] = 0;
-    }
-    argsBuffer.SetData(args);
-
-    Graphics.DrawMeshInstancedIndirect(mesh, 0, mat, bounds, argsBuffer, 0, null, UnityEngine.Rendering.ShadowCastingMode.Off, false, 0, null, UnityEngine.Rendering.LightProbeUsage.Off, null);
+    Graphics.DrawMeshInstancedProcedural(mesh, 0, mat, bounds, positions.Length, null, UnityEngine.Rendering.ShadowCastingMode.Off, false, 0, null, UnityEngine.Rendering.LightProbeUsage.Off, null);
 
     // Add bunnies while over 59fps
     if (1 / Time.smoothDeltaTime > 59)
@@ -179,9 +162,5 @@ public class Scene : MonoBehaviour
     if (positionBuffer != null)
       positionBuffer.Release();
     positionBuffer = null;
-
-    if (argsBuffer != null)
-      argsBuffer.Release();
-    argsBuffer = null;
   }
 }
