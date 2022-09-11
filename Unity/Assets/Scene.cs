@@ -26,7 +26,7 @@ public class Scene : MonoBehaviour
   Bounds bounds = new Bounds(Vector3.zero, new Vector3(100.0f, 100.0f, 100.0f));
 
   Vector4[] positions = new Vector4[0];
-  List<Vector4> velocities = new List<Vector4>();
+  Vector2[] velocities = new Vector2[0];
 
   void Start()
   {
@@ -34,11 +34,12 @@ public class Scene : MonoBehaviour
     mesh = MakeQuad(.7f, .7f);
 
     Array.Resize(ref positions, 10);
+    Array.Resize(ref velocities, 10);
 
     for (int i = 0; i < 10; i++)
     {
       positions[i] = new Vector4(minX, minY, 0, 0);
-      velocities.Add(new Vector4(UnityEngine.Random.Range(0, 0.13f), UnityEngine.Random.Range(-.06f, 0.06f)));
+      velocities[i] = new Vector2(UnityEngine.Random.Range(0, 0.13f), UnityEngine.Random.Range(-.06f, 0.06f));
     }
     positionBuffer = new ComputeBuffer(positions.Length, 16);
 
@@ -58,7 +59,7 @@ public class Scene : MonoBehaviour
     for (int i = 0; i < positions.Length; i++)
     {
       Vector4 pos = positions[i];
-      Vector4 vel = velocities[i];
+      Vector2 vel = velocities[i];
 
       pos.x += vel.x;
       pos.y += vel.y;
@@ -119,10 +120,11 @@ public class Scene : MonoBehaviour
     if (1 / Time.smoothDeltaTime > 59)
     {
       Array.Resize(ref positions, positions.Length + 100);
+      Array.Resize(ref velocities, positions.Length + 100);
       for (int i = 0; i < 100; i++)
       {
         positions[positions.Length - 100 + i] = new Vector4(minX, minY, 0, 0);
-        velocities.Add(new Vector4(UnityEngine.Random.Range(0, 0.13f), UnityEngine.Random.Range(-.06f, 0.06f)));
+        velocities[positions.Length - 100 + i] = new Vector2(UnityEngine.Random.Range(0, 0.13f), UnityEngine.Random.Range(-.06f, 0.06f));
       }
       bunnyText.text = "Bunnies: " + positions.Length;
     }
