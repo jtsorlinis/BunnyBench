@@ -13,10 +13,10 @@ public class Scene : MonoBehaviour
   public Text bunnyText;
   public Material mat;
 
-  float minX = -6.8f;
-  float maxX = 6.1f;
-  float minY = 4.3f;
-  float maxY = -5f;
+  float minX = -6.7f;
+  float maxX = 6.25f;
+  float minY = 4.4f;
+  float maxY = -5;
 
   int max = 2000000;
 
@@ -30,7 +30,7 @@ public class Scene : MonoBehaviour
 
   void Start()
   {
-    mesh = MakeQuad(.7f, .7f);
+    mesh = MakeQuad(.43f, .625f);
 
     Array.Resize(ref positions, 10);
     Array.Resize(ref velocities, 10);
