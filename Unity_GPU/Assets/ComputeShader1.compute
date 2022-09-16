@@ -1,0 +1,56 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+RWStructuredBuffer<float4> Positions;
+RWStructuredBuffer<float2> Velocities;
+uint bufferSize;
+
+float3 hash32(float2 p)
+{
+	float3 p3 = frac(float3(p.xyx) * float3(.1031, .1030, .0973));
+    p3 += dot(p3, p3.yxz+33.33);
+    return frac((p3.xxy+p3.yzz)*p3.zyx);
+}
+
+[numthreads(64,1,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    float minX = -6.7f;
+    float maxX = 6.25f;
+    float minY = 4.4f;
+    float maxY = -5;
+
+    float gravity = 0.5f / 75;
+    float4 pos = Positions[id.x];
+    float2 vel = Velocities[id.x];
+
+    // Generate 3 random numbers from the x and y coords of the bunny
+    float3 rands = hash32(pos.xy);
+
+    pos.x += vel.x;
+    pos.y += vel.y;
+    vel.y -= gravity;
+
+    if (pos.x > maxX) {
+        vel.x *= -1;
+        pos.x = maxX;
+    } else if (pos.x < minX) {
+        vel.x *= -1;
+        pos.x = minX;
+    }
+
+    if (pos.y < maxY) {
+        vel.y *= -0.85f;
+        pos.y = maxY;
+        pos.w = rands.x * 0.2f - 0.1f; // Passing rotation through w value of position
+        if (rands.y > 0.5f) {
+            vel.y += rands.z * 0.1f;
+        }
+    } else if (pos.y > minY) {
+        vel.y = 0;
+        pos.y = minY;
+    }
+
+    Positions[id.x] = pos;
+    Velocities[id.x] = vel;
+}
