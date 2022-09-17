@@ -98,12 +98,12 @@ public class Scene : MonoBehaviour
     // Add bunnies while over 59fps
     if (1 / Time.smoothDeltaTime > 59)
     {
-      Array.Resize(ref positions, positions.Length + 100);
-      Array.Resize(ref velocities, positions.Length + 100);
-      for (int i = 0; i < 100; i++)
+      Array.Resize(ref positions, positions.Length + 1000);
+      Array.Resize(ref velocities, positions.Length + 1000);
+      for (int i = 0; i < 1000; i++)
       {
-        positions[positions.Length - 100 + i] = new Vector4(minX, minY, 0, 0);
-        velocities[positions.Length - 100 + i] = new Vector2(UnityEngine.Random.Range(0, 0.13f), UnityEngine.Random.Range(-.06f, 0.06f));
+        positions[positions.Length - 1000 + i] = new Vector4(minX, minY, 0, 0);
+        velocities[positions.Length - 1000 + i] = new Vector2(UnityEngine.Random.Range(0, 0.13f), UnityEngine.Random.Range(-.06f, 0.06f));
       }
       bunnyText.text = "Bunnies: " + positions.Length;
     }

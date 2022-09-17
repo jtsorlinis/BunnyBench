@@ -63,7 +63,7 @@ public class Scene : MonoBehaviour
     {
       if (count < max)
       {
-        count += 100;
+        count += 1000;
       }
 
       bunnyText.text = "Bunnies: " + count;
