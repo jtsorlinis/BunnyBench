@@ -4,6 +4,14 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 
+public struct Bunny
+{
+  public Vector4 pos;
+  public Vector2 vel;
+  float pad0;
+  float pad1;
+}
+
 
 public class Scene : MonoBehaviour
 {
@@ -14,10 +22,9 @@ public class Scene : MonoBehaviour
   float minX = -6.7f;
   float minY = 4.4f;
 
-  public ComputeShader moveBunniesComputeShader;
+  public ComputeShader bunniesComputeShader;
 
-  private ComputeBuffer positionBuffer;
-  private ComputeBuffer velocityBuffer;
+  private ComputeBuffer bunniesBuffer;
 
   int count = 0;
   int max = 2000000;
@@ -30,32 +37,29 @@ public class Scene : MonoBehaviour
   {
     mesh = MakeQuad(.43f, .625f);
 
-    positionBuffer = new ComputeBuffer(max, 16);
-    velocityBuffer = new ComputeBuffer(max, 8);
+    bunniesBuffer = new ComputeBuffer(max, 32);
 
-    var _posarray = new Vector4[max];
-    var _velarray = new Vector2[max];
+    var _bunniesArray = new Bunny[max];
+
 
     for (int i = 0; i < max; i++)
     {
-      _posarray[i] = new Vector4(minX, minY, 0, 0);
-      _velarray[i] = new Vector2(UnityEngine.Random.Range(0, 0.13f), UnityEngine.Random.Range(-.06f, 0.06f));
+      _bunniesArray[i].pos = new Vector4(minX, minY, 0, 0);
+      _bunniesArray[i].vel = new Vector2(UnityEngine.Random.Range(0, 0.13f), UnityEngine.Random.Range(-.06f, 0.06f));
     }
     count += 10;
 
-    positionBuffer.SetData(_posarray);
-    velocityBuffer.SetData(_velarray);
+    bunniesBuffer.SetData(_bunniesArray);
 
-    moveBunniesComputeShader.SetBuffer(0, "Positions", positionBuffer);
-    moveBunniesComputeShader.SetBuffer(0, "Velocities", velocityBuffer);
-    mat.SetBuffer("positionBuffer", positionBuffer);
+    bunniesComputeShader.SetBuffer(0, "bunnies", bunniesBuffer);
+    mat.SetBuffer("bunnies", bunniesBuffer);
   }
 
   void Update()
   {
     fpsText.text = "FPS: " + ((int)(1 / Time.smoothDeltaTime));
 
-    moveBunniesComputeShader.Dispatch(0, Mathf.CeilToInt(count / 64f), 1, 1);
+    bunniesComputeShader.Dispatch(0, Mathf.CeilToInt(count / 64f), 1, 1);
     Graphics.DrawMeshInstancedProcedural(mesh, 0, mat, bounds, count, null, UnityEngine.Rendering.ShadowCastingMode.Off, false, 0, null, UnityEngine.Rendering.LightProbeUsage.Off, null);
 
     //Add bunnies while over 59fps
@@ -116,9 +120,7 @@ public class Scene : MonoBehaviour
 
   void OnDisable()
   {
-    if (positionBuffer != null)
-      positionBuffer.Release();
-    if (velocityBuffer != null)
-      velocityBuffer.Release();
+    if (bunniesBuffer != null)
+      bunniesBuffer.Release();
   }
 }

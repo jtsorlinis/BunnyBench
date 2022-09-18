@@ -223,7 +223,7 @@ MonoBehaviour:
   fpsText: {fileID: 2072055752}
   bunnyText: {fileID: 2012333839}
   mat: {fileID: 2100000, guid: 23052ba25ec27408ab19fcad64d3a93f, type: 2}
-  moveBunniesComputeShader: {fileID: 7200000, guid: 56544d41b5b504b5982cc5f64aea9576, type: 3}
+  bunniesComputeShader: {fileID: 7200000, guid: 56544d41b5b504b5982cc5f64aea9576, type: 3}
 --- !u!1 &744691070
 GameObject:
   m_ObjectHideFlags: 0

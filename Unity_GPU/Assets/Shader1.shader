@@ -14,12 +14,19 @@
             #pragma fragment frag
             #pragma target 4.5
 
+            struct Bunny {
+                float4 pos;
+                float2 vec;
+                float pad0;
+                float pad1;
+            };
+
             #include "UnityCG.cginc"
 
             sampler2D _MainTex;
 
         #if SHADER_TARGET >= 45
-            StructuredBuffer<float4> positionBuffer;
+            StructuredBuffer<Bunny> bunnies;
         #endif
 
             struct v2f
@@ -40,13 +47,13 @@
             v2f vert (appdata_base v, uint instanceID : SV_InstanceID)
             {
             #if SHADER_TARGET >= 45
-                float4 data = positionBuffer[instanceID];
+                Bunny data = bunnies[instanceID];
             #else
-                float4 data = 0;
+                Bunny data = 0;
             #endif
 
-                rotate2D(v.vertex.xy, data.w);
-                float3 worldPosition = v.vertex.xyz + data.xyz;
+                rotate2D(v.vertex.xy, data.pos.w);
+                float3 worldPosition = v.vertex.xyz + data.pos.xyz;
                 v2f o;
                 o.pos = mul(UNITY_MATRIX_VP, float4(worldPosition, 1.0f));
                 o.uv_MainTex = v.texcoord;
