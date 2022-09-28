@@ -1,6 +1,8 @@
    Shader "Instanced/InstancedShader" {
     Properties {
         _MainTex ("Albedo (RGB)", 2D) = "white" {}
+        _ScaleX ("Scale_X", Float) = 0.43
+        _ScaleY ("Scale_Y", Float) = 0.625
     }
     SubShader {
 
@@ -24,6 +26,8 @@
             #include "UnityCG.cginc"
 
             sampler2D _MainTex;
+            float _ScaleX;
+            float _ScaleY;
 
         #if SHADER_TARGET >= 45
             StructuredBuffer<Bunny> bunnies;
@@ -51,7 +55,7 @@
             #else
                 Bunny data = 0;
             #endif
-
+                v.vertex.xy *= float2(_ScaleX, _ScaleY);
                 rotate2D(v.vertex.xy, data.pos.w);
                 float3 worldPosition = v.vertex.xyz + data.pos.xyz;
                 v2f o;

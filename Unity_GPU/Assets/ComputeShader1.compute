@@ -9,6 +9,9 @@ struct Bunny {
 };
 
 RWStructuredBuffer<Bunny> bunnies;
+float xBound;
+float yBound;
+float gravity;
 
 float3 hash32(float2 p)
 {
@@ -20,12 +23,6 @@ float3 hash32(float2 p)
 [numthreads(64,1,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
-    float minX = -6.7f;
-    float maxX = 6.25f;
-    float minY = 4.4f;
-    float maxY = -5;
-
-    float gravity = 0.5f / 75;
     Bunny bunny = bunnies[id.x];
 
     // Generate 3 random numbers from the x and y coords of the bunny
@@ -35,24 +32,24 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     bunny.pos.y += bunny.vel.y;
     bunny.vel.y -= gravity;
 
-    if (bunny.pos.x > maxX) {
+    if (bunny.pos.x > xBound) {
         bunny.vel.x *= -1;
-        bunny.pos.x = maxX;
-    } else if (bunny.pos.x < minX) {
+        bunny.pos.x = xBound;
+    } else if (bunny.pos.x < -xBound) {
         bunny.vel.x *= -1;
-        bunny.pos.x = minX;
+        bunny.pos.x = -xBound;
     }
 
-    if (bunny.pos.y < maxY) {
+    if (bunny.pos.y < -yBound) {
         bunny.vel.y *= -0.85f;
-        bunny.pos.y = maxY;
+        bunny.pos.y = -yBound;
         bunny.pos.w = rands.x * 0.2f - 0.1f; // Passing rotation through w value of position
         if (rands.y > 0.5f) {
             bunny.vel.y += rands.z * 0.1f;
         }
-    } else if (bunny.pos.y > minY) {
+    } else if (bunny.pos.y > yBound) {
         bunny.vel.y = 0;
-        bunny.pos.y = minY;
+        bunny.pos.y = yBound;
     }
 
     bunnies[id.x] = bunny;
