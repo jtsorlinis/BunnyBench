@@ -1,8 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using System;
 
 public struct Bunny
 {
@@ -12,15 +9,14 @@ public struct Bunny
   float pad1;
 }
 
-
 public class Scene : MonoBehaviour
 {
   public Text fpsText;
   public Text bunnyText;
   public Material mat;
 
-  float xBound = 6.6f;
-  float yBound = 5f;
+  float xBound;
+  float yBound;
 
   float gravity = 0.007f;
 
@@ -29,14 +25,15 @@ public class Scene : MonoBehaviour
   private ComputeBuffer bunniesBuffer;
 
   int count = 0;
-  int max = 2000000;
+  int max = 4000000;
 
   public Mesh quad;
   Bounds bounds = new Bounds(Vector3.zero, new Vector3(100.0f, 100.0f, 100.0f));
 
-
   void Start()
   {
+    yBound = Camera.main.orthographicSize - 0.3f;
+    xBound = Camera.main.orthographicSize * Camera.main.aspect - 0.2f;
     bunniesBuffer = new ComputeBuffer(max, 32);
 
     var _bunniesArray = new Bunny[max];
