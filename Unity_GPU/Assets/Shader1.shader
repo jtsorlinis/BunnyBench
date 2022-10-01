@@ -43,9 +43,7 @@
             {
                 float s, c;
                 sincos(r, s, c);
-                v -= 0.5;
                 v = float2(v.x * c - v.y * s, v.x * s + v.y * c);
-                v += 0.5;
             }
 
             v2f vert (appdata_base v, uint instanceID : SV_InstanceID)
