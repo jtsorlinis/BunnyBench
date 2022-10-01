@@ -13,16 +13,12 @@ public class Scene : MonoBehaviour
   public Text bunnyText;
   public Material mat;
 
-  float minX = -6.7f;
-  float maxX = 6.25f;
-  float minY = 4.4f;
-  float maxY = -5;
-
-  int max = 2000000;
+  float xBound;
+  float yBound;
 
   private ComputeBuffer positionBuffer;
 
-  Mesh mesh;
+  public Mesh quad;
   Bounds bounds = new Bounds(Vector3.zero, new Vector3(100.0f, 100.0f, 100.0f));
 
   Vector4[] positions = new Vector4[0];
@@ -30,27 +26,24 @@ public class Scene : MonoBehaviour
 
   void Start()
   {
-    mesh = MakeQuad(.43f, .625f);
+    yBound = Camera.main.orthographicSize - 0.3f;
+    xBound = Camera.main.orthographicSize * Camera.main.aspect - 0.2f;
 
     Array.Resize(ref positions, 10);
     Array.Resize(ref velocities, 10);
 
     for (int i = 0; i < 10; i++)
     {
-      positions[i] = new Vector4(minX, minY, 0, 0);
+      positions[i] = new Vector4(-xBound, yBound, 0, 0);
       velocities[i] = new Vector2(UnityEngine.Random.Range(0, 0.13f), UnityEngine.Random.Range(-.06f, 0.06f));
     }
-    positionBuffer = new ComputeBuffer(max, 16);
-    positionBuffer.SetData(positions);
+    positionBuffer = new ComputeBuffer(10, 16);
     mat.SetBuffer("positionBuffer", positionBuffer);
-
   }
 
   void Update()
   {
-
     fpsText.text = "FPS: " + ((int)(1 / Time.smoothDeltaTime));
-
 
     for (int i = 0; i < positions.Length; i++)
     {
@@ -61,39 +54,37 @@ public class Scene : MonoBehaviour
       pos.y += vel.y;
       vel.y -= gravity;
 
-      if (pos.x > maxX)
+      if (pos.x > xBound)
       {
         vel.x *= -1;
-        pos.x = maxX;
+        pos.x = xBound;
       }
-      else if (pos.x < minX)
+      else if (pos.x < -xBound)
       {
         vel.x *= -1;
-        pos.x = minX;
+        pos.x = -xBound;
       }
 
-      if (pos.y < this.maxY)
+      if (pos.y < -yBound)
       {
         vel.y *= -0.85f;
-        pos.y = maxY;
+        pos.y = -yBound;
         pos.w = UnityEngine.Random.Range(-0.1f, 0.1f); // Passing rotation through w value of position
         if (UnityEngine.Random.Range(0f, 1f) > 0.5f)
         {
           vel.y += UnityEngine.Random.Range(0f, .1f);
         }
       }
-      else if (pos.y > this.minY)
+      else if (pos.y > yBound)
       {
         vel.y = 0;
-        pos.y = minY;
+        pos.y = yBound;
       }
 
       positions[i] = pos;
       velocities[i] = vel;
     }
 
-    positionBuffer.SetData(positions);
-    Graphics.DrawMeshInstancedProcedural(mesh, 0, mat, bounds, positions.Length, null, UnityEngine.Rendering.ShadowCastingMode.Off, false, 0, null, UnityEngine.Rendering.LightProbeUsage.Off, null);
 
     // Add bunnies while over 59fps
     if (1 / Time.smoothDeltaTime > 59)
@@ -102,55 +93,23 @@ public class Scene : MonoBehaviour
       Array.Resize(ref velocities, positions.Length + 1000);
       for (int i = 0; i < 1000; i++)
       {
-        positions[positions.Length - 1000 + i] = new Vector4(minX, minY, 0, 0);
+        positions[positions.Length - 1000 + i] = new Vector4(-xBound, yBound, 0, 0);
         velocities[positions.Length - 1000 + i] = new Vector2(UnityEngine.Random.Range(0, 0.13f), UnityEngine.Random.Range(-.06f, 0.06f));
       }
+
+      // Resize buffer if we need to
+      if (positionBuffer.count < positions.Length)
+      {
+        positionBuffer.Dispose();
+        positionBuffer = new ComputeBuffer(Mathf.NextPowerOfTwo(positions.Length), 16);
+        mat.SetBuffer("positionBuffer", positionBuffer);
+      }
+
       bunnyText.text = "Bunnies: " + positions.Length;
     }
-  }
 
-  // Helper functions
-  Mesh MakeQuad(float width, float height)
-  {
-    Mesh mesh = new Mesh();
-
-    Vector3[] vertices = new Vector3[4]
-    {
-            new Vector3(0, 0, 0),
-            new Vector3(width, 0, 0),
-            new Vector3(0, height, 0),
-            new Vector3(width, height, 0)
-    };
-    mesh.vertices = vertices;
-
-    int[] tris = new int[6]
-    {
-            // lower left triangle
-            0, 2, 1,
-            // upper right triangle
-            2, 3, 1
-    };
-    mesh.triangles = tris;
-
-    Vector3[] normals = new Vector3[4]
-    {
-            -Vector3.forward,
-            -Vector3.forward,
-            -Vector3.forward,
-            -Vector3.forward
-    };
-    mesh.normals = normals;
-
-    Vector2[] uv = new Vector2[4]
-    {
-            new Vector2(0, 0),
-            new Vector2(1, 0),
-            new Vector2(0, 1),
-            new Vector2(1, 1)
-    };
-    mesh.uv = uv;
-
-    return mesh;
+    positionBuffer.SetData(positions);
+    Graphics.DrawMeshInstancedProcedural(quad, 0, mat, bounds, positions.Length, null, UnityEngine.Rendering.ShadowCastingMode.Off, false, 0, null, UnityEngine.Rendering.LightProbeUsage.Off, null);
   }
 
   void OnDisable()

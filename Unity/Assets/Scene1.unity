@@ -223,6 +223,7 @@ MonoBehaviour:
   fpsText: {fileID: 2072055752}
   bunnyText: {fileID: 2012333839}
   mat: {fileID: 2100000, guid: 23052ba25ec27408ab19fcad64d3a93f, type: 2}
+  quad: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &744691070
 GameObject:
   m_ObjectHideFlags: 0
