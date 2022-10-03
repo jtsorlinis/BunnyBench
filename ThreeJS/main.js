@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { Clock, Vector2 } from "three";
+import { Text } from "troika-three-text";
 
 let clock = new Clock();
 
@@ -56,21 +57,13 @@ const shaderMaterial = new THREE.ShaderMaterial({
   fragmentShader: fragShader,
 
   blending: THREE.NormalBlending,
-  depthTest: false,
+  depthTest: true,
   transparent: true,
   vertexColors: true,
 });
 
 // Setup quad
-const geometry = new THREE.BufferGeometry();
-const vertices = new Float32Array([
-  -0.5, -0.5, 0, 0.5, -0.5, 0, 0.5, 0.5, 0, 0.5, 0.5, 0, -0.5, 0.5, 0, -0.5,
-  -0.5, 0,
-]);
-geometry.setAttribute(
-  "position",
-  new THREE.Float32BufferAttribute(vertices, 3)
-);
+const quad = new THREE.PlaneGeometry();
 
 const bunnyPositions = [];
 const bunnyVelocities = [];
@@ -83,18 +76,48 @@ numBunnies = 10;
 
 let buffer = new THREE.InstancedBufferAttribute(new Float32Array(16 * 3), 3);
 
-geometry.setAttribute("bunnyPositions", buffer);
+quad.setAttribute("bunnyPositions", buffer);
 
-const bunnyMesh = new THREE.InstancedMesh(geometry, shaderMaterial, numBunnies);
+const bunnyMesh = new THREE.InstancedMesh(quad, shaderMaterial, numBunnies);
 scene.add(bunnyMesh);
 
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setSize(800, 600);
-renderer.setAnimationLoop(animation);
-document.body.appendChild(renderer.domElement);
+// UI
+const panelGeom = new THREE.PlaneGeometry(5, 1.65);
+const panelMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
+const panel = new THREE.Mesh(panelGeom, panelMat);
+panel.position.x = -width;
+panel.position.y = height;
+panel.position.z = 2;
+scene.add(panel);
 
-function animation() {
+const fpsText = new Text();
+fpsText.text = "FPS: 0";
+fpsText.fontSize = 0.3;
+fpsText.position.x = -width + 0.05;
+fpsText.position.y = height - 0.05;
+fpsText.position.z = 3;
+fpsText.sync();
+scene.add(fpsText);
+
+const bunnyText = new Text();
+bunnyText.text = "Bunnies: 0";
+bunnyText.fontSize = 0.3;
+bunnyText.position.x = -width + 0.05;
+bunnyText.position.y = height - 0.4;
+bunnyText.position.z = 3;
+bunnyText.sync();
+scene.add(bunnyText);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setClearColor(0x33a5e7, 1);
+renderer.setSize(800, 600);
+document.body.appendChild(renderer.domElement);
+update();
+
+function update() {
+  requestAnimationFrame(update);
   const fps = 1 / clock.getDelta();
+  fpsText.text = "FPS: " + fps.toFixed(2);
   for (let i = 0; i < numBunnies; i++) {
     bunnyPositions[i * 3] += bunnyVelocities[i * 2];
     bunnyPositions[i * 3 + 1] += bunnyVelocities[i * 2 + 1];
@@ -145,8 +168,8 @@ function animation() {
         new Float32Array(nextPowerOf2 * 3),
         3
       );
-      geometry.setAttribute("bunnyPositions", buffer);
+      quad.setAttribute("bunnyPositions", buffer);
     }
-    console.log(numBunnies + " " + fps);
+    bunnyText.text = "Bunnies: " + numBunnies;
   }
 }
