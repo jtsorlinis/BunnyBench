@@ -8,12 +8,16 @@ var yBound = DisplayServer.window_get_size().y/2-18
 @onready var bunnyParticleSystem = get_node("Bunnies")
 var numBunnies = 10
 
+@export var maxBunnies = 10
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	bunnyParticleSystem.amount = maxBunnies
 	bunnyParticleSystem.process_material.set_shader_parameter("xBound", xBound)
 	bunnyParticleSystem.process_material.set_shader_parameter("yBound", yBound)
 	bunnyParticleSystem.process_material.set_shader_parameter("gravity", gravity)
 	bunnyParticleSystem.process_material.set_shader_parameter("rngSeed", randi())
+	for i in range(0,10):
+		bunnyParticleSystem.emit_particle(Transform2D(),Vector2(0,0), Color("white"), Color("white"),0)
 	
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):

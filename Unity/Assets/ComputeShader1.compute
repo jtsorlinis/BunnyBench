@@ -12,21 +12,24 @@ RWStructuredBuffer<Bunny> bunnies;
 float xBound;
 float yBound;
 float gravity;
+uint rngSeed;
 
-float3 hash32(float2 p)
+float wang_hash(inout uint seed)
 {
-	float3 p3 = frac(float3(p.xyx) * float3(.1031, .1030, .0973));
-    p3 += dot(p3, p3.yxz+33.33);
-    return frac((p3.xxy+p3.yzz)*p3.zyx);
+    seed = (seed ^ 61) ^ (seed >> 16);
+    seed *= 9;
+    seed = seed ^ (seed >> 4);
+    seed *= 0x27d4eb2d;
+    seed = seed ^ (seed >> 15);
+    return seed / 4294967296.0;
 }
 
-[numthreads(64,1,1)]
+[numthreads(256,1,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
     Bunny bunny = bunnies[id.x];
 
-    // Generate 3 random numbers from the x and y coords of the bunny
-    float3 rands = hash32(bunny.pos.xy);
+    uint seed = rngSeed + id.x;
 
     bunny.pos.x += bunny.vel.x;
     bunny.pos.y += bunny.vel.y;
@@ -43,9 +46,9 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     if (bunny.pos.y < -yBound) {
         bunny.vel.y *= -0.85f;
         bunny.pos.y = -yBound;
-        bunny.pos.w = rands.x * 0.2f - 0.1f; // Passing rotation through w value of position
-        if (rands.y > 0.5f) {
-            bunny.vel.y += rands.z * 0.1f;
+        bunny.pos.w = wang_hash(seed) * 0.2f - 0.1f; // Passing rotation through w value of position
+        if (wang_hash(seed) > 0.5f) {
+            bunny.vel.y += wang_hash(seed) * 0.1f;
         }
     } else if (bunny.pos.y > yBound) {
         bunny.vel.y = 0;

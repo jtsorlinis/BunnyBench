@@ -220,6 +220,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d410aabeb66c6457f9d5b42ad278f11b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxBunnies: 4000000
   fpsText: {fileID: 2072055752}
   bunnyText: {fileID: 2012333839}
   mat: {fileID: 2100000, guid: 23052ba25ec27408ab19fcad64d3a93f, type: 2}

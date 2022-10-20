@@ -16,10 +16,11 @@ bg_color = Color(0, 0, 0, 1)
 
 [node name="Root" type="Node2D"]
 script = ExtResource("2")
+maxBunnies = 2000000
 
 [node name="Bunnies" type="GPUParticles2D" parent="."]
 emitting = false
-amount = 1000000
+amount = 1
 lifetime = 500000.0
 fixed_fps = 0
 draw_order = 0
@@ -30,22 +31,22 @@ texture = ExtResource("1")
 current = true
 
 [node name="Panel" type="Panel" parent="."]
-offset_left = -398.0
-offset_top = -298.0
-offset_right = -251.0
-offset_bottom = -244.0
+offset_left = -400.0
+offset_top = -300.0
+offset_right = -253.0
+offset_bottom = -255.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_p3xxc")
 
 [node name="FPS" type="Label" parent="."]
-offset_left = -393.0
-offset_top = -293.0
-offset_right = -347.0
-offset_bottom = -279.0
+offset_left = -395.0
+offset_top = -300.0
+offset_right = -341.0
+offset_bottom = -274.0
 text = "FPS: 60"
 
 [node name="count" type="Label" parent="."]
-offset_left = -393.0
-offset_top = -273.0
-offset_right = -317.0
-offset_bottom = -259.0
+offset_left = -395.0
+offset_top = -280.0
+offset_right = -305.0
+offset_bottom = -254.0
 text = "Bunnies: 10"

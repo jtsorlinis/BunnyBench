@@ -11,6 +11,9 @@ public struct Bunny
 
 public class Scene : MonoBehaviour
 {
+  public int maxBunnies = 4000000;
+
+  [Header("Prefabs")]
   public Text fpsText;
   public Text bunnyText;
   public Material mat;
@@ -25,7 +28,6 @@ public class Scene : MonoBehaviour
   private ComputeBuffer bunniesBuffer;
 
   int count = 0;
-  int max = 4000000;
 
   public Mesh quad;
   Bounds bounds = new Bounds(Vector3.zero, new Vector3(100.0f, 100.0f, 100.0f));
@@ -34,11 +36,11 @@ public class Scene : MonoBehaviour
   {
     yBound = Camera.main.orthographicSize - 0.3f;
     xBound = Camera.main.orthographicSize * Camera.main.aspect - 0.2f;
-    bunniesBuffer = new ComputeBuffer(max, 32);
+    bunniesBuffer = new ComputeBuffer(maxBunnies, 32);
 
-    var _bunniesArray = new Bunny[max];
+    var _bunniesArray = new Bunny[maxBunnies];
 
-    for (int i = 0; i < max; i++)
+    for (int i = 0; i < maxBunnies; i++)
     {
       _bunniesArray[i].pos = new Vector4(-xBound, yBound, 0, 0);
       _bunniesArray[i].vel = new Vector2(UnityEngine.Random.Range(0, 0.13f), UnityEngine.Random.Range(-.06f, 0.06f));
@@ -58,13 +60,14 @@ public class Scene : MonoBehaviour
   {
     fpsText.text = "FPS: " + ((int)(1 / Time.smoothDeltaTime));
 
-    bunniesComputeShader.Dispatch(0, Mathf.CeilToInt(count / 64f), 1, 1);
+    bunniesComputeShader.SetInt("rngSeed", Random.Range(0, int.MaxValue));
+    bunniesComputeShader.Dispatch(0, Mathf.CeilToInt(count / 256f), 1, 1);
     Graphics.DrawMeshInstancedProcedural(quad, 0, mat, bounds, count, null, UnityEngine.Rendering.ShadowCastingMode.Off, false, 0, null, UnityEngine.Rendering.LightProbeUsage.Off, null);
 
     //Add bunnies while over 59fps
     if (1 / Time.smoothDeltaTime > 59)
     {
-      if (count < max)
+      if (count < maxBunnies)
       {
         count += 1000;
       }

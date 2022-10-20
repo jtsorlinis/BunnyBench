@@ -35,6 +35,9 @@ void process() {
 	if(TRANSFORM[3].y > yBound) {
 		CUSTOM.y *= -0.8;
 		TRANSFORM[3].y = yBound;
+		float rot = wang_hash(rng) * 0.2 - 0.1;
+		TRANSFORM[0].xy = vec2(cos(rot),-sin(rot));
+		TRANSFORM[1].xy = vec2(sin(rot), cos(rot));
 		if(wang_hash(rng) > 0.5) {
 			CUSTOM.y -= wang_hash(rng) * 12.0;
 		}
