@@ -20,7 +20,7 @@ func _process(delta):
 	fpsLabel.text = 'FPS: %.2f' % Engine.get_frames_per_second()
 	
 	# Add bunnies while over 60fps
-	if 1/delta > 60:
+	if 1/delta > 60 && numBunnies < bunnyParticleSystem.amount:
 		numBunnies += 1000
 		bunnyParticleSystem.process_material.set_shader_param("numBunnies", numBunnies)
 
