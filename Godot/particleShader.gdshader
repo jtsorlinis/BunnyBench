@@ -39,7 +39,7 @@ void process() {
 		TRANSFORM[0].xy = vec2(cos(rot),-sin(rot));
 		TRANSFORM[1].xy = vec2(sin(rot), cos(rot));
 		if(wang_hash(rng) > 0.5) {
-			CUSTOM.y -= wang_hash(rng) * 12.0;
+			CUSTOM.y -= wang_hash(rng) * 6.0;
 		}
 	} else if (TRANSFORM[3].y < -yBound) {
 		CUSTOM.y = 0.0;
