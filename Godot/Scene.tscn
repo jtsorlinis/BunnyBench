@@ -1,45 +1,51 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=3 uid="uid://cmam85qo63nx5"]
 
-[ext_resource path="res://bunny2.png" type="Texture" id=1]
-[ext_resource path="res://Scene.gd" type="Script" id=2]
-[ext_resource path="res://particleShader.gdshader" type="Shader" id=3]
+[ext_resource type="Texture2D" uid="uid://2me7v3mvngk4" path="res://bunny2.png" id="1"]
+[ext_resource type="Script" path="res://Scene.gd" id="2"]
+[ext_resource type="Shader" path="res://particleShader.gdshader" id="3"]
 
-[sub_resource type="ShaderMaterial" id=2]
-shader = ExtResource( 3 )
-shader_param/xBound = null
-shader_param/yBound = null
-shader_param/gravity = null
-shader_param/numBunnies = null
+[sub_resource type="ShaderMaterial" id="2"]
+shader = ExtResource("3")
+shader_parameter/gravity = null
+shader_parameter/rngSeed = null
+shader_parameter/xBound = null
+shader_parameter/yBound = null
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_p3xxc"]
+bg_color = Color(0, 0, 0, 1)
 
 [node name="Root" type="Node2D"]
-script = ExtResource( 2 )
+script = ExtResource("2")
 
-[node name="Bunnies" type="Particles2D" parent="."]
+[node name="Bunnies" type="GPUParticles2D" parent="."]
+emitting = false
 amount = 1000000
 lifetime = 500000.0
-explosiveness = 1.0
-process_material = SubResource( 2 )
-texture = ExtResource( 1 )
+fixed_fps = 0
+draw_order = 0
+process_material = SubResource("2")
+texture = ExtResource("1")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 current = true
 
 [node name="Panel" type="Panel" parent="."]
-margin_left = -398.0
-margin_top = -298.0
-margin_right = -277.0
-margin_bottom = -255.0
+offset_left = -398.0
+offset_top = -298.0
+offset_right = -251.0
+offset_bottom = -244.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_p3xxc")
 
 [node name="FPS" type="Label" parent="."]
-margin_left = -393.0
-margin_top = -293.0
-margin_right = -347.0
-margin_bottom = -279.0
+offset_left = -393.0
+offset_top = -293.0
+offset_right = -347.0
+offset_bottom = -279.0
 text = "FPS: 60"
 
 [node name="count" type="Label" parent="."]
-margin_left = -393.0
-margin_top = -273.0
-margin_right = -317.0
-margin_bottom = -259.0
+offset_left = -393.0
+offset_top = -273.0
+offset_right = -317.0
+offset_bottom = -259.0
 text = "Bunnies: 10"
