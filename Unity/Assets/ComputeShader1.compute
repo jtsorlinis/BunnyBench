@@ -2,10 +2,10 @@
 #pragma kernel CSMain
 
 struct Bunny {
-    float4 pos;
-    float2 vel;
-    float pad0;
-    float pad1;
+  float4 pos;
+  float2 vel;
+  float pad0;
+  float pad1;
 };
 
 RWStructuredBuffer<Bunny> bunnies;
@@ -14,46 +14,44 @@ float yBound;
 float gravity;
 uint rngSeed;
 
-float wang_hash(inout uint seed)
-{
-    seed = (seed ^ 61) ^ (seed >> 16);
-    seed *= 9;
-    seed = seed ^ (seed >> 4);
-    seed *= 0x27d4eb2d;
-    seed = seed ^ (seed >> 15);
-    return seed / 4294967296.0;
+float wang_hash(inout uint seed) {
+  seed = (seed ^ 61) ^(seed >> 16);
+  seed *= 9;
+  seed = seed ^(seed >> 4);
+  seed *= 0x27d4eb2d;
+  seed = seed ^(seed >> 15);
+  return seed / 4294967296.0;
 }
 
-[numthreads(256,1,1)]
-void CSMain (uint3 id : SV_DispatchThreadID)
-{
-    Bunny bunny = bunnies[id.x];
+[numthreads(256, 1, 1)]
+void CSMain(uint3 id : SV_DispatchThreadID) {
+  Bunny bunny = bunnies[id.x];
 
-    uint seed = rngSeed + id.x;
+  uint seed = rngSeed + id.x;
 
-    bunny.pos.x += bunny.vel.x;
-    bunny.pos.y += bunny.vel.y;
-    bunny.vel.y -= gravity;
+  bunny.pos.x += bunny.vel.x;
+  bunny.pos.y += bunny.vel.y;
+  bunny.vel.y -= gravity;
 
-    if (bunny.pos.x > xBound) {
-        bunny.vel.x *= -1;
-        bunny.pos.x = xBound;
-    } else if (bunny.pos.x < -xBound) {
-        bunny.vel.x *= -1;
-        bunny.pos.x = -xBound;
+  if (bunny.pos.x > xBound) {
+    bunny.vel.x *= -1;
+    bunny.pos.x = xBound;
+  } else if (bunny.pos.x < - xBound) {
+    bunny.vel.x *= -1;
+    bunny.pos.x = -xBound;
+  }
+
+  if (bunny.pos.y < - yBound) {
+    bunny.vel.y *= -0.85f;
+    bunny.pos.y = -yBound;
+    bunny.pos.w = wang_hash(seed) * 0.2f - 0.1f; // Passing rotation through w value of position
+    if (wang_hash(seed) > 0.5f) {
+      bunny.vel.y += wang_hash(seed) * 0.1f;
     }
+  } else if (bunny.pos.y > yBound) {
+    bunny.vel.y = 0;
+    bunny.pos.y = yBound;
+  }
 
-    if (bunny.pos.y < -yBound) {
-        bunny.vel.y *= -0.85f;
-        bunny.pos.y = -yBound;
-        bunny.pos.w = wang_hash(seed) * 0.2f - 0.1f; // Passing rotation through w value of position
-        if (wang_hash(seed) > 0.5f) {
-            bunny.vel.y += wang_hash(seed) * 0.1f;
-        }
-    } else if (bunny.pos.y > yBound) {
-        bunny.vel.y = 0;
-        bunny.pos.y = yBound;
-    }
-
-    bunnies[id.x] = bunny;
+  bunnies[id.x] = bunny;
 }
