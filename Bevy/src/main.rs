@@ -23,25 +23,26 @@ struct Bunny {
 #[derive(Component)]
 struct StatsText;
 
-#[derive(Component)]
+#[derive(Resource)]
 struct Counter {
     count: usize,
 }
 
-#[derive(Component)]
+#[derive(Resource)]
 struct Rand {
     rng: WyRand,
 }
 
 fn main() {
     App::new()
-        .insert_resource(WindowDescriptor {
-            width: WINDOW_WIDTH,
-            height: WINDOW_HEIGHT,
-            present_mode: PresentMode::AutoNoVsync,
+        .add_plugins(DefaultPlugins.set(WindowPlugin {
+            primary_window: Some(Window {
+                resolution: (WINDOW_WIDTH, WINDOW_HEIGHT).into(),
+                present_mode: PresentMode::AutoNoVsync,
+                ..default()
+            }),
             ..default()
-        })
-        .add_plugins(DefaultPlugins)
+        }))
         .add_plugin(FrameTimeDiagnosticsPlugin::default())
         .insert_resource(Counter { count: 0 })
         .insert_resource(Rand { rng: WyRand::new() })
@@ -52,7 +53,7 @@ fn main() {
         .run();
 }
 
-#[derive(Deref)]
+#[derive(Resource, Deref)]
 struct BunnyTexture(Handle<Image>);
 
 fn setup(
@@ -65,11 +66,11 @@ fn setup(
 ) {
     let texture = asset_server.load("bunny.png");
 
-    commands.spawn_bundle(Camera2dBundle::default());
+    commands.spawn(Camera2dBundle::default());
     commands.insert_resource(BunnyTexture(texture.clone()));
 
     commands
-        .spawn_bundle(
+        .spawn(
             TextBundle::from_sections([
                 TextSection::new(
                     "FPS:",
@@ -100,7 +101,7 @@ fn setup(
         )
         .insert(StatsText);
 
-    commands.spawn_bundle(MaterialMesh2dBundle {
+    commands.spawn(MaterialMesh2dBundle {
         mesh: meshes
             .add(shape::Quad::new(vec2(250.0, 70.0)).into())
             .into(),
@@ -112,7 +113,7 @@ fn setup(
     // spawn initial bunnies
     for _count in 0..10 {
         commands
-            .spawn_bundle(SpriteBundle {
+            .spawn(SpriteBundle {
                 texture: texture.clone(),
                 transform: Transform {
                     translation: Vec3::new(MINX, MINY, 0.0),
@@ -170,7 +171,7 @@ fn spawn_bunnies(
             if average > 59.0 {
                 for _count in 0..100 {
                     commands
-                        .spawn_bundle(SpriteBundle {
+                        .spawn(SpriteBundle {
                             texture: texture.clone(),
                             transform: Transform {
                                 translation: Vec3::new(MINX, MINY, 0.0),
