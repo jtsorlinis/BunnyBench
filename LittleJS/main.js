@@ -109,5 +109,5 @@ engineInit(
   gameUpdatePost,
   gameRender,
   gameRenderPost,
-  "Bunny.png"
+  "bunny.png"
 );
