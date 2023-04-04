@@ -20,6 +20,7 @@ config/icon="res://icon.png"
 window/size/viewport_width=800
 window/size/viewport_height=600
 window/size/resizable=false
+window/dpi/allow_hidpi=false
 window/vsync/vsync_mode=0
 window/stretch/mode="viewport"
 

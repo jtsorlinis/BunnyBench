@@ -3,22 +3,22 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://2me7v3mvngk4"
-path="res://.godot/imported/bunny2.png-01a17e1c559766139f2bcb1d845b7680.ctex"
+path="res://.godot/imported/bunny.png-e23606c57d59402d46f8f11b8e3b74b2.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://bunny2.png"
-dest_files=["res://.godot/imported/bunny2.png-01a17e1c559766139f2bcb1d845b7680.ctex"]
+source_file="res://bunny.png"
+dest_files=["res://.godot/imported/bunny.png-e23606c57d59402d46f8f11b8e3b74b2.ctex"]
 
 [params]
 
 compress/mode=0
+compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1
-compress/bptc_ldr=0
 compress/normal_map=0
 compress/channel_pack=0
 mipmaps/generate=false
