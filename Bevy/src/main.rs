@@ -16,22 +16,19 @@ const MAXY: f32 = -MINY;
 const GRAVITY: f32 = 0.5;
 
 #[derive(Component)]
-struct Bunny {
-    velocity: Vec3,
-}
+struct Bunny;
+
+#[derive(Component)]
+struct Velocity(Vec2);
 
 #[derive(Component)]
 struct StatsText;
 
 #[derive(Resource)]
-struct Counter {
-    count: usize,
-}
+struct Counter(usize);
 
 #[derive(Resource)]
-struct Rand {
-    rng: WyRand,
-}
+struct Rand(WyRand);
 
 fn main() {
     App::new()
@@ -44,8 +41,8 @@ fn main() {
             ..default()
         }))
         .add_plugin(FrameTimeDiagnosticsPlugin::default())
-        .insert_resource(Counter { count: 0 })
-        .insert_resource(Rand { rng: WyRand::new() })
+        .insert_resource(Counter(0))
+        .insert_resource(Rand(WyRand::new()))
         .add_startup_system(setup)
         .add_system(move_bunnies)
         .add_system(display_stats)
@@ -112,48 +109,51 @@ fn setup(
 
     // spawn initial bunnies
     for _count in 0..10 {
-        commands
-            .spawn(SpriteBundle {
+        commands.spawn((
+            Bunny,
+            SpriteBundle {
                 texture: texture.clone(),
                 transform: Transform {
                     translation: Vec3::new(MINX, MINY, 0.0),
                     ..default()
                 },
                 ..default()
-            })
-            .insert(Bunny {
-                velocity: Vec3::new(
-                    rng.rng.generate::<f32>() * 10.0,
-                    rng.rng.generate::<f32>() * 10.0 - 5.0,
-                    0.0,
-                ),
-            });
+            },
+            Velocity(Vec2::new(
+                rng.0.generate::<f32>() * 10.0,
+                rng.0.generate::<f32>() * 10.0 - 5.0,
+            )),
+        ));
     }
-    counter.count = 10;
+    counter.0 = 10;
 }
 
-fn move_bunnies(mut bunny_query: Query<(&mut Bunny, &mut Transform)>, mut rng: ResMut<Rand>) {
-    for (mut bunny, mut transform) in &mut bunny_query {
-        transform.translation += bunny.velocity;
-        bunny.velocity.y -= GRAVITY;
+fn move_bunnies(
+    mut bunny_query: Query<(&mut Velocity, &mut Transform), With<Bunny>>,
+    mut rng: ResMut<Rand>,
+) {
+    for (mut velocity, mut transform) in &mut bunny_query {
+        transform.translation.x += velocity.0.x;
+        transform.translation.y += velocity.0.y;
+        velocity.0.y -= GRAVITY;
 
         if transform.translation.x > MAXX {
-            bunny.velocity.x *= -1.0;
+            velocity.0.x *= -1.0;
             transform.translation.x = MAXX;
         } else if transform.translation.x < MINX {
-            bunny.velocity.x *= -1.0;
+            velocity.0.x *= -1.0;
             transform.translation.x = MINX;
         }
 
         if transform.translation.y < MAXY {
-            bunny.velocity.y *= -0.85;
+            velocity.0.y *= -0.85;
             transform.translation.y = MAXY;
-            transform.rotation = Quat::from_rotation_z(rng.rng.generate::<f32>() * 0.2 - 0.1);
-            if rng.rng.generate::<f32>() > 0.5 {
-                bunny.velocity.y += rng.rng.generate::<f32>() * 6.0;
+            transform.rotation = Quat::from_rotation_z(rng.0.generate::<f32>() * 0.2 - 0.1);
+            if rng.0.generate::<f32>() > 0.5 {
+                velocity.0.y += rng.0.generate::<f32>() * 6.0;
             }
         } else if transform.translation.y > MINY {
-            bunny.velocity.y = 0.0;
+            velocity.0.y = 0.0;
             transform.translation.y = MINY;
         }
     }
@@ -170,24 +170,23 @@ fn spawn_bunnies(
         if let Some(average) = fps.average() {
             if average > 59.0 {
                 for _count in 0..100 {
-                    commands
-                        .spawn(SpriteBundle {
+                    commands.spawn((
+                        Bunny,
+                        SpriteBundle {
                             texture: texture.clone(),
                             transform: Transform {
                                 translation: Vec3::new(MINX, MINY, 0.0),
                                 ..default()
                             },
                             ..default()
-                        })
-                        .insert(Bunny {
-                            velocity: Vec3::new(
-                                rng.rng.generate::<f32>() * 10.0,
-                                rng.rng.generate::<f32>() * 10.0 - 5.0,
-                                0.0,
-                            ),
-                        });
+                        },
+                        Velocity(Vec2::new(
+                            rng.0.generate::<f32>() * 10.0,
+                            rng.0.generate::<f32>() * 10.0 - 5.0,
+                        )),
+                    ));
                 }
-                counter.count += 100;
+                counter.0 += 100;
             }
         }
     }
@@ -202,7 +201,7 @@ fn display_stats(
     if let Some(fps) = diagnostics.get(FrameTimeDiagnosticsPlugin::FPS) {
         if let Some(average) = fps.average() {
             text.sections[0].value = format!("FPS: {average:.1}");
-            text.sections[1].value = format!("\nBunnies: {}", counter.count)
+            text.sections[1].value = format!("\nBunnies: {}", counter.0)
         }
     }
 }
