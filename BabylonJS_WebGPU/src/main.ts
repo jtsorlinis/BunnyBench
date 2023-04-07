@@ -37,27 +37,27 @@ const xBound = orthoSize * aspectRatio - 0.05;
 const yBound = orthoSize - 0.07;
 
 const stride = 8;
-const initialParticleData = new Float32Array(bufferSize * stride);
+const bunniesData = new Float32Array(bufferSize * stride);
 for (let i = 0; i < bufferSize; ++i) {
   // Position
-  initialParticleData[stride * i + 0] = -xBound;
-  initialParticleData[stride * i + 1] = yBound;
+  bunniesData[stride * i + 0] = -xBound;
+  bunniesData[stride * i + 1] = yBound;
 
   // Rotation
-  initialParticleData[stride * i + 2] = 0;
+  bunniesData[stride * i + 2] = 0;
 
   // Velocity
-  initialParticleData[stride * i + 4] = Math.random() * maxSpeed;
-  initialParticleData[stride * i + 5] = (Math.random() - 0.5) * maxSpeed;
+  bunniesData[stride * i + 4] = Math.random() * maxSpeed;
+  bunniesData[stride * i + 5] = (Math.random() - 0.5) * maxSpeed;
 }
 
 const bunnyComputeBuffer = new StorageBuffer(
   engine,
-  initialParticleData.byteLength,
+  bunniesData.byteLength,
   8 | 2
 );
 
-bunnyComputeBuffer.update(initialParticleData);
+bunnyComputeBuffer.update(bunniesData);
 
 const bunnyPosBuffer = new VertexBuffer(
   engine,
