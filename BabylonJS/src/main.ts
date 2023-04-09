@@ -16,7 +16,7 @@ const gravity = 0.007;
 const canvas = document.getElementById("renderCanvas") as HTMLCanvasElement;
 const bunnyText = document.getElementById("bunnyText") as HTMLElement;
 const fpsText = document.getElementById("fpsText") as HTMLElement;
-const engine = new Engine(canvas);
+const engine = new Engine(canvas, false);
 engine.setSize(800, 600);
 
 var scene = new Scene(engine);
@@ -33,31 +33,29 @@ camera.orthoRight = orthoSize * aspectRatio;
 const xBound = orthoSize * aspectRatio - 0.05;
 const yBound = orthoSize - 0.07;
 
-const stride = 5;
-const bunniesData = new Float32Array(bufferSize * stride);
+const bunnyPositions = new Float32Array(bufferSize * 3);
+const bunnyVelocities = new Float32Array(bufferSize * 2);
 for (let i = 0; i < bufferSize; ++i) {
   // Position
-  bunniesData[stride * i + 0] = -xBound;
-  bunniesData[stride * i + 1] = yBound;
+  bunnyPositions[3 * i + 0] = -xBound;
+  bunnyPositions[3 * i + 1] = yBound;
 
   // Rotation
-  bunniesData[stride * i + 2] = 0;
+  bunnyPositions[3 * i + 2] = 0;
 
   // Velocity
-  bunniesData[stride * i + 3] = Math.random() * maxSpeed;
-  bunniesData[stride * i + 4] = (Math.random() - 0.5) * maxSpeed;
+  bunnyVelocities[2 * i + 0] = Math.random() * maxSpeed;
+  bunnyVelocities[2 * i + 1] = (Math.random() - 0.5) * maxSpeed;
 }
 
 const bunnyPosBuffer = new VertexBuffer(
   engine,
-  bunniesData,
+  bunnyPositions,
   "bunnyPos",
   true,
   false,
-  stride,
-  true,
-  0,
-  3
+  3,
+  true
 );
 
 // Load texture and materials
@@ -80,31 +78,31 @@ engine.runRenderLoop(() => {
   fpsText.innerHTML = `FPS: ${fps.toFixed(2)}`;
 
   for (let i = 0; i < numBunnies; ++i) {
-    bunniesData[stride * i + 0] += bunniesData[stride * i + 3];
-    bunniesData[stride * i + 1] += bunniesData[stride * i + 4];
-    bunniesData[stride * i + 4] -= gravity;
+    bunnyPositions[i * 3] += bunnyVelocities[i * 2];
+    bunnyPositions[i * 3 + 1] += bunnyVelocities[i * 2 + 1];
+    bunnyVelocities[i * 2 + 1] -= gravity;
 
-    if (bunniesData[stride * i + 0] > xBound) {
-      bunniesData[stride * i + 0] = xBound;
-      bunniesData[stride * i + 3] *= -1;
-    } else if (bunniesData[stride * i + 0] < -xBound) {
-      bunniesData[stride * i + 0] = -xBound;
-      bunniesData[stride * i + 3] *= -1;
+    if (bunnyPositions[i * 3] > xBound) {
+      bunnyVelocities[i * 2] *= -1;
+      bunnyPositions[i * 3] = xBound;
+    } else if (bunnyPositions[i * 3] < -xBound) {
+      bunnyVelocities[i * 2] *= -1;
+      bunnyPositions[i * 3] = -xBound;
     }
 
-    if (bunniesData[stride * i + 1] < -yBound) {
-      bunniesData[stride * i + 1] = -yBound;
-      bunniesData[stride * i + 4] *= -0.85;
-      bunniesData[stride * i + 2] = Math.random() * 0.2 - 0.1;
+    if (bunnyPositions[i * 3 + 1] < -yBound) {
+      bunnyVelocities[i * 2 + 1] *= -0.85;
+      bunnyPositions[i * 3 + 1] = -yBound;
+      bunnyPositions[i * 3 + 2] = (Math.random() - 0.5) * 0.2;
       if (Math.random() > 0.5) {
-        bunniesData[stride * i + 4] += Math.random() * 0.1;
+        bunnyVelocities[i * 2 + 1] += Math.random() * 0.1;
       }
-    } else if (bunniesData[stride * i + 1] > yBound) {
-      bunniesData[stride * i + 1] = yBound;
-      bunniesData[stride * i + 4] = 0;
+    } else if (bunnyPositions[i * 3 + 1] > yBound) {
+      bunnyVelocities[i * 2 + 1] = 0;
+      bunnyPositions[i * 3 + 1] = yBound;
     }
   }
-  bunnyPosBuffer.update(bunniesData);
+  bunnyPosBuffer.update(bunnyPositions);
 
   scene.render();
   if (fps > 59) {

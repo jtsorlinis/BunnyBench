@@ -18,7 +18,7 @@ const gravity = 0.007;
 const canvas = document.getElementById("renderCanvas") as HTMLCanvasElement;
 const bunnyText = document.getElementById("bunnyText") as HTMLElement;
 const fpsText = document.getElementById("fpsText") as HTMLElement;
-const engine = new WebGPUEngine(canvas);
+const engine = new WebGPUEngine(canvas, { antialias: false });
 await engine.initAsync();
 engine.setSize(800, 600);
 

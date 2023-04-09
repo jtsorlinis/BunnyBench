@@ -20,8 +20,13 @@ varying vec2 vUv;
 attribute vec3 bunnyPositions;
 
 void main() {
+  float angle = bunnyPositions.z;
+  vec2 pos = vec2(
+      position.x * cos(angle) - position.y * sin(angle),
+      position.x * sin(angle) + position.y * cos(angle)
+  );
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(pos * scale + bunnyPositions.xy, 0, 1.0 );
   vUv = position.xy + 0.5 ;
-  gl_Position = projectionMatrix * modelViewMatrix * vec4(position.xy * scale + bunnyPositions.xy, 0, 1.0 );
 }
 `;
 
@@ -108,7 +113,7 @@ bunnyText.position.z = 3;
 bunnyText.sync();
 scene.add(bunnyText);
 
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+const renderer = new THREE.WebGLRenderer();
 renderer.setClearColor(0x33a5e7, 1);
 renderer.setSize(800, 600);
 document.body.appendChild(renderer.domElement);
