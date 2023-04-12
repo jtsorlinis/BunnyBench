@@ -24,12 +24,8 @@ export default class Demo extends Phaser.Scene {
     this.counter = this.add.text(5, 25, `Bunnies: 0`).setDepth(2);
     this.add.rectangle(0, 0, 150, 45, 0x000000).setOrigin(0, 0).setDepth(1);
 
-    const particles = this.add.particles("bunny");
-    this.emitter = particles.createEmitter({
-      active: true,
+    this.emitter = this.add.particles(10, 10, "bunny", {
       frequency: -1,
-      x: 10,
-      y: 10,
       lifespan: Number.MAX_VALUE,
     });
 
