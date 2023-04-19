@@ -26,6 +26,6 @@
     "@rollup/plugin-replace": "^5.0.2",
     "phaser": "^3.60.0",
     "typescript": "^5.0.4",
-    "vite": "^4.2.1"
+    "vite": "^4.2.2"
   }
 }

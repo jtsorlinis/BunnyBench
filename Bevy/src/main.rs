@@ -133,8 +133,7 @@ fn move_bunnies(
     mut rng: ResMut<Rand>,
 ) {
     for (mut velocity, mut transform) in &mut bunny_query {
-        transform.translation.x += velocity.0.x;
-        transform.translation.y += velocity.0.y;
+        transform.translation += velocity.0.extend(0.0);
         velocity.0.y -= GRAVITY;
 
         if transform.translation.x > MAXX {
