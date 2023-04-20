@@ -6,7 +6,7 @@ import { Texture } from "@babylonjs/core/Materials/Textures/texture";
 import { ShaderMaterial } from "@babylonjs/core/Materials/shaderMaterial";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { CreatePlane } from "@babylonjs/core/Meshes/Builders/planeBuilder";
-import { Scene } from "@babylonjs/core/scene";
+import { Scene, ScenePerformancePriority } from "@babylonjs/core/scene";
 
 let numBunnies = 10;
 const bufferSize = 1000000;
