@@ -1,22 +1,25 @@
 import { VertexBuffer } from "@babylonjs/core/Buffers/buffer";
 import "./style.css";
 import { FreeCamera } from "@babylonjs/core/Cameras/freeCamera";
-import { Engine } from "@babylonjs/core";
+import { ComputeShader, UniformBuffer, WebGPUEngine } from "@babylonjs/core";
 import { Texture } from "@babylonjs/core/Materials/Textures/texture";
 import { ShaderMaterial } from "@babylonjs/core/Materials/shaderMaterial";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { CreatePlane } from "@babylonjs/core/Meshes/Builders/planeBuilder";
-import { Scene, ScenePerformancePriority } from "@babylonjs/core/scene";
+import { Scene } from "@babylonjs/core/scene";
+import { StorageBuffer } from "@babylonjs/core/Buffers/storageBuffer";
+import { bunnyComputeSource } from "./bunnyComputeShader";
 
 let numBunnies = 10;
-const bufferSize = 1000000;
+const bufferSize = 2000000;
 const maxSpeed = 0.13;
 const gravity = 0.007;
 
 const canvas = document.getElementById("renderCanvas") as HTMLCanvasElement;
 const bunnyText = document.getElementById("bunnyText") as HTMLElement;
 const fpsText = document.getElementById("fpsText") as HTMLElement;
-const engine = new Engine(canvas, false);
+const engine = new WebGPUEngine(canvas, { antialias: false });
+await engine.initAsync();
 engine.setSize(800, 600);
 
 var scene = new Scene(engine);
@@ -33,29 +36,39 @@ camera.orthoRight = orthoSize * aspectRatio;
 const xBound = orthoSize * aspectRatio - 0.05;
 const yBound = orthoSize - 0.07;
 
-const bunnyPositions = new Float32Array(bufferSize * 3);
-const bunnyVelocities = new Float32Array(bufferSize * 2);
+const stride = 8;
+const bunniesData = new Float32Array(bufferSize * stride);
 for (let i = 0; i < bufferSize; ++i) {
   // Position
-  bunnyPositions[3 * i + 0] = -xBound;
-  bunnyPositions[3 * i + 1] = yBound;
+  bunniesData[stride * i + 0] = -xBound;
+  bunniesData[stride * i + 1] = yBound;
 
   // Rotation
-  bunnyPositions[3 * i + 2] = 0;
+  bunniesData[stride * i + 2] = 0;
 
   // Velocity
-  bunnyVelocities[2 * i + 0] = Math.random() * maxSpeed;
-  bunnyVelocities[2 * i + 1] = (Math.random() - 0.5) * maxSpeed;
+  bunniesData[stride * i + 4] = Math.random() * maxSpeed;
+  bunniesData[stride * i + 5] = (Math.random() - 0.5) * maxSpeed;
 }
+
+const bunnyComputeBuffer = new StorageBuffer(
+  engine,
+  bunniesData.byteLength,
+  8 | 2
+);
+
+bunnyComputeBuffer.update(bunniesData);
 
 const bunnyPosBuffer = new VertexBuffer(
   engine,
-  bunnyPositions,
+  bunnyComputeBuffer.getBuffer(),
   "bunnyPos",
-  true,
   false,
-  3,
-  true
+  false,
+  stride,
+  true,
+  0,
+  3
 );
 
 // Load texture and materials
@@ -73,37 +86,37 @@ bunnyMesh.material = bunnyMat;
 bunnyMesh.forcedInstanceCount = numBunnies;
 bunnyMesh.setVerticesBuffer(bunnyPosBuffer, false);
 
+const params = new UniformBuffer(engine, undefined, true, "params");
+params.addUniform("gravity", 1);
+params.addUniform("xBound", 1);
+params.addUniform("yBound", 1);
+params.addUniform("rngSeed", 1);
+
+params.updateFloat("gravity", gravity);
+params.updateFloat("xBound", xBound);
+params.updateFloat("yBound", yBound);
+params.update();
+
+const bunnyComputeShader = new ComputeShader(
+  "bunniesCompute",
+  engine,
+  { computeSource: bunnyComputeSource },
+  {
+    bindingsMapping: {
+      params: { group: 0, binding: 0 },
+      bunnies: { group: 0, binding: 1 },
+    },
+  }
+);
+bunnyComputeShader.setUniformBuffer("params", params);
+bunnyComputeShader.setStorageBuffer("bunnies", bunnyComputeBuffer);
+
 engine.runRenderLoop(() => {
   const fps = engine.getFps();
   fpsText.innerHTML = `FPS: ${fps.toFixed(2)}`;
-
-  for (let i = 0; i < numBunnies; ++i) {
-    bunnyPositions[i * 3] += bunnyVelocities[i * 2];
-    bunnyPositions[i * 3 + 1] += bunnyVelocities[i * 2 + 1];
-    bunnyVelocities[i * 2 + 1] -= gravity;
-
-    if (bunnyPositions[i * 3] > xBound) {
-      bunnyVelocities[i * 2] *= -1;
-      bunnyPositions[i * 3] = xBound;
-    } else if (bunnyPositions[i * 3] < -xBound) {
-      bunnyVelocities[i * 2] *= -1;
-      bunnyPositions[i * 3] = -xBound;
-    }
-
-    if (bunnyPositions[i * 3 + 1] < -yBound) {
-      bunnyVelocities[i * 2 + 1] *= -0.85;
-      bunnyPositions[i * 3 + 1] = -yBound;
-      bunnyPositions[i * 3 + 2] = (Math.random() - 0.5) * 0.2;
-      if (Math.random() > 0.5) {
-        bunnyVelocities[i * 2 + 1] += Math.random() * 0.1;
-      }
-    } else if (bunnyPositions[i * 3 + 1] > yBound) {
-      bunnyVelocities[i * 2 + 1] = 0;
-      bunnyPositions[i * 3 + 1] = yBound;
-    }
-  }
-  bunnyPosBuffer.update(bunnyPositions);
-
+  params.updateUInt("rngSeed", Math.random() * 1000000);
+  params.update();
+  bunnyComputeShader.dispatch(Math.ceil(numBunnies / 256), 1, 1);
   scene.render();
   if (fps > 59) {
     numBunnies += 1000;
