@@ -1,16 +1,20 @@
-attribute vec2 position;
-attribute vec2 uv;
-attribute vec3 bunnyPos;
+#include<sceneUboDeclaration>
 
-varying vec2 vUV;
-uniform mat4 worldViewProjection;
+struct Bunny {
+    pos : vec3<f32>,
+    vel : vec2<f32>,
+};
 
-void main() {
-    float angle = bunnyPos.z;
-    vec2 pos = vec2(
-        position.x * cos(angle) - position.y * sin(angle),
-        position.x * sin(angle) + position.y * cos(angle)
-    );
-    gl_Position = worldViewProjection * vec4(pos + bunnyPos.xy, 0.0,1.0);;
-    vUV = uv;
+var<storage> bunnies : array<Bunny>;
+
+attribute position : vec3<f32>;
+attribute uv: vec2<f32>;
+
+varying vUV : vec2<f32>;
+
+@vertex
+fn main(input : VertexInputs) -> FragmentInputs {
+    var bunnyPos = bunnies[input.instanceIndex].pos + vertexInputs.position;
+    vertexOutputs.position = scene.viewProjection * vec4<f32>(bunnyPos, 1.0);
+    vertexOutputs.vUV = vertexInputs.uv;
 }

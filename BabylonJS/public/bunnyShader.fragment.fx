@@ -1,6 +1,9 @@
-varying vec2 vUV;
-uniform sampler2D bunnyTexture;
+var bunnyTexture : texture_2d<f32>;
+var bunnySampler : sampler;
 
-void main() {
-    gl_FragColor = texture2D(bunnyTexture, vUV);
+varying vUV : vec2<f32>;
+
+@fragment
+fn main(input : FragmentInputs) -> FragmentOutputs {
+    fragmentOutputs.color = textureSample(bunnyTexture, bunnySampler, fragmentInputs.vUV);
 }

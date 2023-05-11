@@ -1,7 +1,13 @@
-import { VertexBuffer } from "@babylonjs/core/Buffers/buffer";
 import "./style.css";
 import { FreeCamera } from "@babylonjs/core/Cameras/freeCamera";
-import { ComputeShader, UniformBuffer, WebGPUEngine } from "@babylonjs/core";
+import {
+  ComputeShader,
+  Constants,
+  ShaderLanguage,
+  TextureSampler,
+  UniformBuffer,
+  WebGPUEngine,
+} from "@babylonjs/core";
 import { Texture } from "@babylonjs/core/Materials/Textures/texture";
 import { ShaderMaterial } from "@babylonjs/core/Materials/shaderMaterial";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector";
@@ -11,7 +17,7 @@ import { StorageBuffer } from "@babylonjs/core/Buffers/storageBuffer";
 import { bunnyComputeSource } from "./bunnyComputeShader";
 
 let numBunnies = 10;
-const bufferSize = 2000000;
+const bufferSize = 4000000;
 const maxSpeed = 0.13;
 const gravity = 0.007;
 
@@ -51,40 +57,30 @@ for (let i = 0; i < bufferSize; ++i) {
   bunniesData[stride * i + 5] = (Math.random() - 0.5) * maxSpeed;
 }
 
-const bunnyComputeBuffer = new StorageBuffer(
-  engine,
-  bunniesData.byteLength,
-  8 | 2
-);
-
-bunnyComputeBuffer.update(bunniesData);
-
-const bunnyPosBuffer = new VertexBuffer(
-  engine,
-  bunnyComputeBuffer.getBuffer(),
-  "bunnyPos",
-  false,
-  false,
-  stride,
-  true,
-  0,
-  3
-);
-
-// Load texture and materials
-const bunnyTexture = new Texture("bunny.png", scene);
 const bunnyMat = new ShaderMaterial("bunnyMat", scene, "./bunnyShader", {
-  attributes: ["position", "uv", "bunnyPos"],
-  uniforms: ["worldViewProjection"],
+  attributes: ["position", "uv"],
+  uniformBuffers: ["Scene", "Mesh"],
+  storageBuffers: ["bunnies"],
+  shaderLanguage: ShaderLanguage.WGSL,
 });
+
+const bunnyComputeBuffer = new StorageBuffer(engine, bunniesData.byteLength);
+bunnyComputeBuffer.update(bunniesData);
+bunnyMat.setStorageBuffer("bunnies", bunnyComputeBuffer);
+
+const bunnyTexture = new Texture("bunny.png", scene);
 bunnyMat.setTexture("bunnyTexture", bunnyTexture);
 bunnyMat.alpha = 0;
+
+const sampler = new TextureSampler();
+sampler.setParameters();
+sampler.samplingMode = Constants.TEXTURE_NEAREST_SAMPLINGMODE;
+bunnyMat.setTextureSampler("bunnySampler", sampler);
 
 // Create bunny mesh
 const bunnyMesh = CreatePlane("bunnyMesh", { width: 0.3, height: 0.5 }, scene);
 bunnyMesh.material = bunnyMat;
 bunnyMesh.forcedInstanceCount = numBunnies;
-bunnyMesh.setVerticesBuffer(bunnyPosBuffer, false);
 
 const params = new UniformBuffer(engine, undefined, true, "params");
 params.addUniform("gravity", 1);
