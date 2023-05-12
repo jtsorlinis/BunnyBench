@@ -1,11 +1,8 @@
 Shader "Instanced/InstancedShader" {
   Properties {
     _MainTex ("Albedo (RGB)", 2D) = "white" { }
-    _ScaleX ("Scale_X", Float) = 0.43
-    _ScaleY ("Scale_Y", Float) = 0.625
   }
   SubShader {
-
     Pass {
       Blend SrcAlpha OneMinusSrcAlpha
       Tags { "Queue" = "Transparent" }
@@ -23,19 +20,21 @@ Shader "Instanced/InstancedShader" {
         float pad1;
       };
 
-      #include "UnityCG.cginc"
-
       sampler2D _MainTex;
-      float _ScaleX;
-      float _ScaleY;
 
       #if SHADER_TARGET >= 45
         StructuredBuffer<Bunny> bunnies;
       #endif
 
+      struct appdata {
+        float4 vertex : POSITION;
+        float2 texcoord : TEXCOORD0;
+        uint instanceID : SV_InstanceID;
+      };
+
       struct v2f {
         float4 pos : SV_POSITION;
-        float2 uv_MainTex : TEXCOORD0;
+        float2 uv : TEXCOORD0;
       };
 
       void rotate2D(inout float2 v, float r) {
@@ -44,23 +43,22 @@ Shader "Instanced/InstancedShader" {
         v = float2(v.x * c - v.y * s, v.x * s + v.y * c);
       }
 
-      v2f vert(appdata_base v, uint instanceID : SV_InstanceID) {
+      v2f vert(appdata v) {
         #if SHADER_TARGET >= 45
-          Bunny data = bunnies[instanceID];
+          Bunny data = bunnies[v.instanceID];
         #else
           Bunny data = 0;
         #endif
-        v.vertex.xy *= float2(_ScaleX, _ScaleY);
         rotate2D(v.vertex.xy, data.pos.w);
-        float3 worldPosition = v.vertex.xyz + data.pos.xyz;
+        float2 worldPosition = v.vertex.xy + data.pos.xy;
         v2f o;
-        o.pos = mul(UNITY_MATRIX_VP, float4(worldPosition, 1.0f));
-        o.uv_MainTex = v.texcoord;
+        o.pos = UnityObjectToClipPos(float4(worldPosition, 0, 1));
+        o.uv = v.texcoord;
         return o;
       }
 
       float4 frag(v2f i) : SV_Target {
-        float4 colour = tex2D(_MainTex, i.uv_MainTex);
+        float4 colour = tex2D(_MainTex, i.uv);
         return colour;
       }
 

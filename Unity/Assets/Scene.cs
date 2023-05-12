@@ -29,13 +29,14 @@ public class Scene : MonoBehaviour
 
   int count = 0;
 
-  public Mesh quad;
+  Mesh quad;
   Bounds bounds = new Bounds(Vector3.zero, new Vector3(100.0f, 100.0f, 100.0f));
 
   void Start()
   {
-    yBound = Camera.main.orthographicSize - 0.3f;
-    xBound = Camera.main.orthographicSize * Camera.main.aspect - 0.2f;
+    quad = MakeQuad();
+    yBound = Camera.main.orthographicSize - 0.07f;
+    xBound = Camera.main.orthographicSize * Camera.main.aspect - 0.05f;
     bunniesBuffer = new ComputeBuffer(maxBunnies, 32);
 
     var _bunniesArray = new Bunny[maxBunnies];
@@ -78,7 +79,41 @@ public class Scene : MonoBehaviour
 
   void OnDisable()
   {
-    if (bunniesBuffer != null)
-      bunniesBuffer.Release();
+    bunniesBuffer?.Release();
+  }
+
+  Mesh MakeQuad()
+  {
+    float width = .3f;
+    float height = .5f;
+    Mesh mesh = new Mesh();
+
+    Vector3[] vertices = new Vector3[4]
+    {
+      new Vector3(-width/2, -height/2, 0),
+      new Vector3(width/2, -height/2, 0),
+      new Vector3(-width/2, height/2, 0),
+      new Vector3(width/2, height/2, 0)
+    };
+    mesh.vertices = vertices;
+
+    int[] tris = new int[6]
+    {
+      // lower left triangle
+      0, 2, 1,
+      // upper right triangle
+      2, 3, 1
+    };
+    mesh.triangles = tris;
+
+    Vector2[] uv = new Vector2[4]
+    {
+      new Vector2(0, 0),
+      new Vector2(1, 0),
+      new Vector2(0, 1),
+      new Vector2(1, 1)
+    };
+    mesh.uv = uv;
+    return mesh;
   }
 }
