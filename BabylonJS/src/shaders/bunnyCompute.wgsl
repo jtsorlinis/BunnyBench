@@ -1,4 +1,3 @@
-export const bunnyComputeSource = `
 struct Bunny {
     pos : vec3<f32>,
     vel : vec2<f32>,
@@ -56,4 +55,3 @@ fn main(@builtin(global_invocation_id) GlobalInvocationID : vec3<u32>) {
 
   bunnies[index] = bunny;
 }
-`;

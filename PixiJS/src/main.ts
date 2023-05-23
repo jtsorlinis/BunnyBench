@@ -2,18 +2,19 @@ import * as PIXI from "pixi.js";
 
 type Bunny = PIXI.Sprite & { speedX: number; speedY: number };
 
-let app = new PIXI.Application({
+let renderer = new PIXI.Renderer({
   width: 800,
   height: 600,
   backgroundColor: 0x00b5e2,
 });
-document.body.appendChild(app.view);
+document.body.appendChild(renderer.view as HTMLCanvasElement);
 
 const uiContainer = new PIXI.Container();
 const bunnyContainer = new PIXI.ParticleContainer(200000);
 
-app.stage.addChild(bunnyContainer);
-app.stage.addChild(uiContainer);
+const stage = new PIXI.Container();
+stage.addChild(bunnyContainer);
+stage.addChild(uiContainer);
 
 const bunnyTex = PIXI.Texture.from("bunny.png");
 
@@ -45,9 +46,9 @@ uiContainer.zIndex = 1000;
 
 const gravity = 0.5;
 const minX = 0;
-const maxX = app.screen.width - 26;
+const maxX = renderer.screen.width - 26;
 const minY = 0;
-const maxY = app.screen.height - 37;
+const maxY = renderer.screen.height - 37;
 
 const bunnies: any[] = [];
 
@@ -61,10 +62,15 @@ for (let i = 0; i < 10; i++) {
   bunnies.push(bunny);
 }
 
-app.ticker.add(() => {
-  fpsText.text = "FPS: " + PIXI.Ticker.system.FPS.toFixed(1);
+let prevTime = performance.now();
+
+const animate = () => {
+  const now = performance.now();
+  const fps = 1000 / (now - prevTime);
+  prevTime = now;
+  fpsText.text = "FPS: " + fps.toFixed(1);
   // Add bunnies
-  if (PIXI.Ticker.system.FPS > 59) {
+  if (fps > 59) {
     for (let i = 0; i < 100; i++) {
       let bunny = new PIXI.Sprite(bunnyTex) as Bunny;
       bunny.x = minX;
@@ -104,4 +110,7 @@ app.ticker.add(() => {
       bunny.y = minY;
     }
   }
-});
+  renderer.render(stage);
+  requestAnimationFrame(animate);
+};
+requestAnimationFrame(animate);

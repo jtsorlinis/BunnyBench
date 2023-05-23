@@ -10,6 +10,7 @@ if (NOT raylib_FOUND)
         GIT_REPOSITORY https://github.com/raysan5/raylib.git
         GIT_TAG 4.5.0
     )
+    message(STATUS "Downloading raylib")
     FetchContent_MakeAvailable(raylib)
 endif()
 
@@ -22,6 +23,7 @@ if (NOT raylib_cpp_FOUND)
         GIT_REPOSITORY https://github.com/RobLoach/raylib-cpp.git
         GIT_TAG v4.5.0
     )
+    message(STATUS "Downloading raylib-cpp")
     FetchContent_MakeAvailable(raylib_cpp)
 endif()
 

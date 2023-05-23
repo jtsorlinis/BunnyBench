@@ -14,7 +14,9 @@ import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { CreatePlane } from "@babylonjs/core/Meshes/Builders/planeBuilder";
 import { Scene } from "@babylonjs/core/scene";
 import { StorageBuffer } from "@babylonjs/core/Buffers/storageBuffer";
-import { bunnyComputeSource } from "./bunnyComputeShader";
+import bunnyVertexSource from "./shaders/bunnyVertex.wgsl?raw";
+import bunnyFragmentSource from "./shaders/bunnyFragment.wgsl?raw";
+import bunnyComputeSource from "./shaders/bunnyCompute.wgsl?raw";
 
 let numBunnies = 10;
 const bufferSize = 4000000;
@@ -39,8 +41,8 @@ camera.orthoTop = orthoSize;
 camera.orthoLeft = -orthoSize * aspectRatio;
 camera.orthoRight = orthoSize * aspectRatio;
 
-const xBound = orthoSize * aspectRatio - 0.05;
-const yBound = orthoSize - 0.07;
+const xBound = orthoSize * aspectRatio - 0.12;
+const yBound = orthoSize - 0.25;
 
 const stride = 8;
 const bunniesData = new Float32Array(bufferSize * stride);
@@ -57,12 +59,20 @@ for (let i = 0; i < bufferSize; ++i) {
   bunniesData[stride * i + 5] = (Math.random() - 0.5) * maxSpeed;
 }
 
-const bunnyMat = new ShaderMaterial("bunnyMat", scene, "./bunnyShader", {
-  attributes: ["position", "uv"],
-  uniformBuffers: ["Scene", "Mesh"],
-  storageBuffers: ["bunnies"],
-  shaderLanguage: ShaderLanguage.WGSL,
-});
+const bunnyMat = new ShaderMaterial(
+  "bunnyMat",
+  scene,
+  {
+    vertexSource: bunnyVertexSource,
+    fragmentSource: bunnyFragmentSource,
+  },
+  {
+    attributes: ["position", "uv"],
+    uniformBuffers: ["Scene", "Mesh"],
+    storageBuffers: ["bunnies"],
+    shaderLanguage: ShaderLanguage.WGSL,
+  }
+);
 
 const bunnyComputeBuffer = new StorageBuffer(engine, bunniesData.byteLength);
 bunnyComputeBuffer.update(bunniesData);

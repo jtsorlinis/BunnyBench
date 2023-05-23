@@ -9,11 +9,11 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "@babylonjs/core": "^6.3.0",
+    "@babylonjs/core": "^6.4.1",
     "typescript": "^5.0.4",
-    "vite": "^4.3.5"
+    "vite": "^4.3.8"
   },
   "dependencies": {
-    "@babylonjs/materials": "^6.3.0"
+    "@babylonjs/materials": "^6.4.1"
   }
 }

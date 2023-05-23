@@ -2,6 +2,7 @@ use bevy::{
     diagnostic::{Diagnostics, FrameTimeDiagnosticsPlugin},
     math::vec2,
     prelude::*,
+    render::camera::ScalingMode,
     sprite::MaterialMesh2dBundle,
     window::PresentMode,
 };
@@ -9,11 +10,12 @@ use nanorand::{Rng, WyRand};
 
 const WINDOW_WIDTH: f32 = 800.0;
 const WINDOW_HEIGHT: f32 = 600.0;
-const MINX: f32 = -(WINDOW_WIDTH / 2.0) + 10.0;
-const MAXX: f32 = -MINX;
-const MINY: f32 = (WINDOW_HEIGHT / 2.0) - 16.0;
-const MAXY: f32 = -MINY;
-const GRAVITY: f32 = 0.5;
+const ORTHOSIZE: f32 = 5.0;
+const XBOUND: f32 = ORTHOSIZE * (WINDOW_WIDTH / WINDOW_HEIGHT) - 0.05;
+const YBOUND: f32 = ORTHOSIZE - 0.07;
+const GRAVITY: f32 = 0.007;
+const MAXVEL: f32 = 0.13;
+const BUNNYSCALE: f32 = 0.0135;
 
 #[derive(Component)]
 struct Bunny;
@@ -63,7 +65,13 @@ fn setup(
 ) {
     let texture = asset_server.load("bunny.png");
 
-    commands.spawn(Camera2dBundle::default());
+    commands.spawn(Camera2dBundle {
+        projection: OrthographicProjection {
+            scaling_mode: ScalingMode::FixedVertical(ORTHOSIZE * 2.),
+            ..default()
+        },
+        ..default()
+    });
     commands.insert_resource(BunnyTexture(texture.clone()));
 
     commands
@@ -99,11 +107,9 @@ fn setup(
         .insert(StatsText);
 
     commands.spawn(MaterialMesh2dBundle {
-        mesh: meshes
-            .add(shape::Quad::new(vec2(250.0, 70.0)).into())
-            .into(),
+        mesh: meshes.add(shape::Quad::new(vec2(4.25, 1.6)).into()).into(),
         material: materials.add(ColorMaterial::from(Color::BLACK)),
-        transform: Transform::from_translation(Vec3::new(MINX, MINY, 1.0)),
+        transform: Transform::from_translation(Vec3::new(-XBOUND, YBOUND, 1.0)),
         ..default()
     });
 
@@ -114,14 +120,15 @@ fn setup(
             SpriteBundle {
                 texture: texture.clone(),
                 transform: Transform {
-                    translation: Vec3::new(MINX, MINY, 0.0),
+                    scale: Vec3::splat(BUNNYSCALE),
+                    translation: Vec3::new(-XBOUND, YBOUND, 0.0),
                     ..default()
                 },
                 ..default()
             },
             Velocity(Vec2::new(
-                rng.0.generate::<f32>() * 10.0,
-                rng.0.generate::<f32>() * 10.0 - 5.0,
+                rng.0.generate::<f32>() * MAXVEL,
+                rng.0.generate::<f32>() * MAXVEL - (MAXVEL / 2.0),
             )),
         ));
     }
@@ -136,24 +143,24 @@ fn move_bunnies(
         transform.translation += velocity.0.extend(0.0);
         velocity.0.y -= GRAVITY;
 
-        if transform.translation.x > MAXX {
+        if transform.translation.x > XBOUND {
             velocity.0.x *= -1.0;
-            transform.translation.x = MAXX;
-        } else if transform.translation.x < MINX {
+            transform.translation.x = XBOUND;
+        } else if transform.translation.x < -XBOUND {
             velocity.0.x *= -1.0;
-            transform.translation.x = MINX;
+            transform.translation.x = -XBOUND;
         }
 
-        if transform.translation.y < MAXY {
+        if transform.translation.y < -YBOUND {
             velocity.0.y *= -0.85;
-            transform.translation.y = MAXY;
+            transform.translation.y = -YBOUND;
             transform.rotation = Quat::from_rotation_z(rng.0.generate::<f32>() * 0.2 - 0.1);
             if rng.0.generate::<f32>() > 0.5 {
-                velocity.0.y += rng.0.generate::<f32>() * 6.0;
+                velocity.0.y += rng.0.generate::<f32>() * 0.1;
             }
-        } else if transform.translation.y > MINY {
+        } else if transform.translation.y > YBOUND {
             velocity.0.y = 0.0;
-            transform.translation.y = MINY;
+            transform.translation.y = YBOUND;
         }
     }
 }
@@ -174,14 +181,15 @@ fn spawn_bunnies(
                         SpriteBundle {
                             texture: texture.clone(),
                             transform: Transform {
-                                translation: Vec3::new(MINX, MINY, 0.0),
+                                scale: Vec3::splat(BUNNYSCALE),
+                                translation: Vec3::new(-XBOUND, YBOUND, 0.0),
                                 ..default()
                             },
                             ..default()
                         },
                         Velocity(Vec2::new(
-                            rng.0.generate::<f32>() * 10.0,
-                            rng.0.generate::<f32>() * 10.0 - 5.0,
+                            rng.0.generate::<f32>() * MAXVEL,
+                            rng.0.generate::<f32>() * MAXVEL - (MAXVEL / 2.0),
                         )),
                     ));
                 }
